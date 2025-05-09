@@ -1215,8 +1215,7 @@ function duplicateQuoteGroup(sourceGroupElement) {
 
         const quoteGroupElements = document.querySelectorAll('#quoteGroupsContainer .quote-group-section');
         quoteGroupElements.forEach((groupEl, index) => {
-            // 구분선(hr)을 추가하는 로직 제거 또는 주석 처리
-            /*
+            /* 구분선 제거
             if (index > 0) { 
                  mainContentHTML += `<tr><td style="padding-top: 30px; padding-bottom:10px;"><hr style="border:none; border-top: 3px double #999;"></td></tr>`;
             }
@@ -1291,6 +1290,7 @@ function duplicateQuoteGroup(sourceGroupElement) {
     function downloadGeneratedHTML() {
         syncAllContentEditablesToTextareas(); 
         const form = document.form1;
+        // 필수 입력 필드 검증 (previewQuote와 동일)
         if (!form.custname.value.trim()) { alert('받는이를 입력해 주세요.'); form.custname.focus(); return; }
         if (!form.custmail.value.trim()) { alert('받는이 메일 주소를 입력해 주세요.'); form.custmail.focus(); return; }
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1307,29 +1307,41 @@ function duplicateQuoteGroup(sourceGroupElement) {
 
         const quoteGroupElements = document.querySelectorAll('#quoteGroupsContainer .quote-group-section');
         quoteGroupElements.forEach((groupEl, index) => {
-            // 구분선(hr)을 추가하는 로직 제거 또는 주석 처리
+            // 구분선(hr)을 추가하는 로직 제거
             /*
              if (index > 0) {
                  mainContentHTML += `<tr><td style="padding-top: 30px; padding-bottom:10px;"><hr style="border:none; border-top: 3px double #999;"></td></tr>`;
             }
             */
-            const groupTitleEl = groupEl.querySelector(`input[name="quote_group_title[${groupEl.dataset.groupIndex}]"]`);
-            const groupTitle = groupTitleEl ? groupTitleEl.value.trim() : `견적 ${parseInt(groupEl.dataset.groupIndex) + 1}`;
-            mainContentHTML += `
-                <tr>
-                    <td style="padding-top:25px; padding-bottom: 10px; font-weight:bold; font-size:16px; color:#1a6f2b; border-bottom: 2px solid #1a6f2b;" 
-                        class="quote-group-main-title">
-                        ${groupTitle}
-                    </td>
-                </tr>`;
-            mainContentHTML += `<tbody style="display: table-row-group;">`; 
-            mainContentHTML += _generatePreviewPriceSubgroupsHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex);
-            mainContentHTML += _generatePreviewInclusionsExclusionsHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex, 'included');
-            mainContentHTML += _generatePreviewInclusionsExclusionsHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex, 'excluded');
-            mainContentHTML += _generatePreviewFlightSubgroupsHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex);
-            mainContentHTML += _generatePreviewItineraryHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex);
-            mainContentHTML += `</tbody>`;
+            // 다운로드 HTML에서도 접기/펼치기 UI 생성 및 첫 그룹만 펼침
+            mainContentHTML += _generatePreviewForSingleQuoteGroupHTML_Template(groupEl, groupEl.dataset.groupIndex, index === 0);
         });
+        
+        const fontAwesomeLink_dl = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css">';
+        const toggleScript_dl = `
+            <script>
+                function togglePreviewGroupContent(contentId, iconId) {
+                    const contentElement = document.getElementById(contentId);
+                    const iconElement = document.getElementById(iconId);
+                    if (contentElement && iconElement) {
+                        if (contentElement.style.display === 'none') {
+                            contentElement.style.display = 'table-row-group';
+                            iconElement.classList.remove('fa-plus-square');
+                            iconElement.classList.add('fa-minus-square');
+                        } else {
+                            contentElement.style.display = 'none';
+                            iconElement.classList.remove('fa-minus-square');
+                            iconElement.classList.add('fa-plus-square');
+                        }
+                    }
+                }
+            <\/script>
+            <style>
+                .preview-toggle-icon { margin-left: 10px; font-size: 0.9em; color: #555; cursor: pointer; }
+                 @media screen and (max-width: 760px) { .preview-toggle-icon { font-size: 1em; } }
+            </style>
+        `;
+
 
         let fullPreviewHTML_forDownload = `
             <!DOCTYPE html>
@@ -1338,8 +1350,9 @@ function duplicateQuoteGroup(sourceGroupElement) {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>견적서 - ${form.goodnm.value || '내일투어'}</title>
+                ${fontAwesomeLink_dl}
                 ${getMobileStylesForDownload()}
-                 <style> .preview-toggle-icon { display: none; } </style>
+                ${toggleScript_dl}
             </head>
             <body style="margin:0; padding:0; background-color: #ffffff;">
                 <table style="width:710px; margin: 0 auto; border-spacing: 0; border-collapse: collapse;">
