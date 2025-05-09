@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>견적서_한원희버전_리팩토링_접기펼치기_구분선제거</title>
+<title>견적서_한원희버전</title>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css">
 <style>
@@ -99,7 +99,7 @@
 <div class="w-4/10"><label class="block text-gray-700 mb-1">이메일</label><input type="email" id="customerEmail" name="custmail" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange"></div>
 <div class="w-3/10"><label class="block text-gray-700 mb-1">참조</label><input type="text" id="custcmail" name="custcmail" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange"></div>
 </div>
-<div class="mb-4" style="margin-top: 1rem;"><div><label class="block text-gray-700 mb-1">메일제목</label><input type="text" id="subject" name="subject" value="견적 안내 메일입니다." class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange"></div></div>
+<div class="mb-4" style="margin-top: 1rem;"><div><label class="block text-gray-700 mb-1">메일제목</label><input type="text" id="subject" name="subject" value="[내일투어]  고객님, 행복한 여행을 위한 견적 안내 메일입니다." class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange"></div></div>
 <div class="mb-4" style="margin-top: 1rem;"><label class="block text-gray-700 mb-2">안내사항 (본문 첫 부분)</label><textarea id="introText" name="intro" rows="4" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange" placeholder="안녕하세요! 내일투어입니다. 고객님의 소중한 여행을 함께 준비하겠습니다."></textarea></div>
 <div class="mb-4" style="margin-top: 1rem;"><div><label class="block text-gray-700 mb-1">상품명 (공통)</label><input type="text" id="goodnm" name="goodnm" value="" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange"></div></div>
             </div>
@@ -153,7 +153,7 @@
                 <button type="button" class="copy-quote-group-btn" title="이 견적 그룹 복사"><i class="fas fa-copy mr-1"></i>그룹 복사</button>
                 <button type="button" class="delete-quote-group-btn" title="이 견적 그룹 삭제"><i class="fas fa-trash-alt mr-1"></i>그룹 삭제</button>
             </div>
-            <input type="text" name="quote_group_title[${groupIndex}]" class="group-title-input" placeholder="견적 그룹 제목 (예: A안 - 실속형, B안 - 프리미엄)">
+            <input type="text" name="quote_group_title[${groupIndex}]" class="group-title-input" placeholder="견적 그룹 제목 (예: 1. 대한항공 + 신라 모노그램 다낭 슈페리어)">
 
             <section class="mb-8 price-section-wrapper">
                 <div class="flex justify-between items-center mb-4">
@@ -200,7 +200,7 @@
             </section>
 
             <section class="mb-8 itinerary-summary-section-wrapper">
-                <h3 class="text-xl font-semibold mb-4 bg-custom-orange p-2 rounded">일정표 (요약)</h3>
+                <h3 class="text-xl font-semibold mb-4 bg-custom-orange p-2 rounded">간단일정</h3>
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white border">
                         <thead><tr class="bg-gray-100"><th class="border p-2 text-left" style="width: 8%;">일수</th><th class="border p-2 text-left">날짜</th><th class="border p-2 text-left">출발지</th><th class="border p-2 text-left">도착지</th><th class="border p-2 text-left">숙박</th><th class="border p-2 text-left">이동</th><th class="border p-2 text-left">비고</th><th class="border p-2 text-center w-12">삭제</th></tr></thead>
@@ -279,7 +279,7 @@
     sectionDiv.innerHTML = `
         <button type="button" class="delete-dynamic-section delete-dynamic-section-btn text-red-500 hover:text-red-700" title="이 요금 소그룹 삭제"><i class="fas fa-trash-alt mr-1"></i>삭제</button>
         <div class="mb-2">
-            <input type="text" name="${groupTitleInputName}" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange text-lg font-semibold" placeholder="견적설명 (예: 기본형, 업그레이드형)" value="${initialSubgroupTitle}">
+            <input type="text" name="${groupTitleInputName}" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange text-lg font-semibold" placeholder="견적설명 (예: 인천출발,김해출발,A객실,B객실)" value="${initialSubgroupTitle}">
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border price-table">
@@ -299,8 +299,8 @@
     } else { 
         const defaultAdultCount = 1; const defaultChildCount = 0; const defaultInfantCount = 0;
         addPriceRowToExistingSubgroup(null, sectionDiv, { title: "성인요금", perPrice: "", number: defaultAdultCount, bigo: "" });
-        addPriceRowToExistingSubgroup(null, sectionDiv, { title: "소아요금", perPrice: "", number: defaultChildCount, bigo: "만2~12세미만 (좌석점유)\n" });
-        addPriceRowToExistingSubgroup(null, sectionDiv, { title: "유아요금", perPrice: "", number: defaultInfantCount, bigo: "만24개월 미만(좌석미점유)\n" });
+        addPriceRowToExistingSubgroup(null, sectionDiv, { title: "소아요금", perPrice: "", number: defaultChildCount, bigo: "2~12세미만(좌석점유)\n" });
+        addPriceRowToExistingSubgroup(null, sectionDiv, { title: "유아요금", perPrice: "", number: defaultInfantCount, bigo: "24개월미만(좌석미점유)\n" });
     }
     
     initPriceTableForSubgroup(sectionDiv);
@@ -522,8 +522,12 @@
         tbodyElement.appendChild(tr); 
         
         const inputs = tr.querySelectorAll('.itinerary-schedule-input');
-        if (inputs[0] && !inputs[0].value) inputs[0].placeholder = "일수"; 
-        if (inputs[1] && !inputs[1].value) inputs[1].placeholder = "날짜";
+        if (inputs[0] && !inputs[0].value) inputs[0].placeholder = "1"; 
+        if (inputs[1] && !inputs[1].value) inputs[1].placeholder = "12월 28일";
+        if (inputs[2] && !inputs[2].value) inputs[2].placeholder = "인천";
+        if (inputs[3] && !inputs[3].value) inputs[3].placeholder = "푸꾸옥";
+        if (inputs[4] && !inputs[4].value) inputs[4].placeholder = "버고호텔";
+        if (inputs[5] && !inputs[5].value) inputs[5].placeholder = "항공";
         return tr;
     }
 
