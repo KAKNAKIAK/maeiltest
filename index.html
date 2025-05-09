@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>견적서_한원희버전</title>
+<title>견적서_한원희버전_리팩토링_접기펼치기_구분선제거</title>
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css">
 <style>
 /* 기본 스타일 유지 (메인 페이지용) */
 .custom-orange { color: #000; }
-.bg-custom-orange { background-color: #e1e1e1; color: #000; } /* 견적 그룹 내부 섹션 제목 기본 배경 */
+.bg-custom-orange { background-color: #e1e1e1; color: #000; }
 .border-custom-orange { border-color: #ff5a00; }
 .custom-green { color: #66bb6a; }
 .bg-custom-green { background-color: #66bb6a; }
@@ -20,13 +20,13 @@
 .w-3\/10 { width: 34%; }
 .w-4\/10 { width: 40%; }
     .quote-group-section {
-        border: 2px solid #4A90E2; /* 파란색 테두리로 그룹 구분 */
+        border: 2px solid #4A90E2;
         padding: 1.5rem;
         margin-bottom: 2rem;
         border-radius: 8px;
         background-color: #f9f9f9;
         position: relative;
-        padding-top: 4rem; /* 버튼 공간 확보 */
+        padding-top: 4rem;
     }
     .group-action-buttons {
         position: absolute;
@@ -38,7 +38,7 @@
     }
     .group-action-buttons button {
         padding: 0.3rem 0.6rem;
-        font-size: 0.75rem; /* 버튼 글자 크기 조정 */
+        font-size: 0.75rem;
         line-height: 1;
         border-radius: 4px;
         color: white;
@@ -46,7 +46,7 @@
     }
     .add-next-quote-group-btn { background-color: #007bff; }
     .add-next-quote-group-btn:hover { background-color: #0069d9; }
-    .copy-quote-group-btn { background-color: #ffc107; color: #212529 !important; } /* 노란색 배경에 어두운 글씨 */
+    .copy-quote-group-btn { background-color: #ffc107; color: #212529 !important; }
     .copy-quote-group-btn:hover { background-color: #e0a800; }
     .delete-quote-group-btn { background-color: #dc3545; }
     .delete-quote-group-btn:hover { background-color: #c82333; }
@@ -67,7 +67,6 @@
         pointer-events: none;
         display: block;
     }
-    .input-type-option { margin-right: 10px; font-size: 0.9em; }
     .group-title-input {
         font-size: 1.25rem;
         font-weight: bold;
@@ -76,6 +75,12 @@
         border: 1px solid #ddd;
         border-radius: 4px;
         width: 100%;
+    }
+    /* 미리보기용 접기/펼치기 아이콘 스타일 */
+    .preview-toggle-icon {
+        margin-left: 10px;
+        font-size: 0.9em;
+        color: #555;
     }
 </style>
 </head>
@@ -120,21 +125,20 @@
 </form>
 
 <script>
-const monthMap = { 'JAN': '1', 'FEB': '2', 'MAR': '3', 'APR': '4', 'MAY': '5', 'JUN': '6', 'JUL': '7', 'AUG': '8', 'SEP': '9', 'OCT': '10', 'NOV': '11', 'DEC': '12' };
-    let quoteGroupCounter = 0; // 전체 견적 그룹 카운터
+    let quoteGroupCounter = 0;
 
-function enableSelectOnFocus(containerSelector = 'body') {
-    const container = document.querySelector(containerSelector);
-    if (!container) return;
-    container.addEventListener('focusin', function(event) {
-        const target = event.target;
-        if (target.matches('input[type="text"], input[type="email"], input[type="number"], textarea')) {
-            if (target.select) {
-                setTimeout(() => { target.select(); }, 0);
+    function enableSelectOnFocus(containerSelector = 'body') {
+        const container = document.querySelector(containerSelector);
+        if (!container) return;
+        container.addEventListener('focusin', function(event) {
+            const target = event.target;
+            if (target.matches('input[type="text"], input[type="email"], input[type="number"], textarea')) {
+                if (typeof target.select === 'function') { 
+                    setTimeout(() => { target.select(); }, 0);
+                }
             }
-        }
-    });
-}
+        });
+    }
 
     function createQuoteGroup(groupIndex, afterElement = null, sourceGroupData = null) {
         const groupId = `quoteGroup_${groupIndex}`;
@@ -151,7 +155,6 @@ function enableSelectOnFocus(containerSelector = 'body') {
             </div>
             <input type="text" name="quote_group_title[${groupIndex}]" class="group-title-input" placeholder="견적 그룹 제목 (예: A안 - 실속형, B안 - 프리미엄)">
 
-            <!-- 요금 안내 섹션 시작 -->
             <section class="mb-8 price-section-wrapper">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-semibold bg-custom-orange p-2 rounded" style="flex-grow: 1;">요금 안내</h3>
@@ -160,58 +163,31 @@ function enableSelectOnFocus(containerSelector = 'body') {
                     </button>
                 </div>
                 <div id="priceSectionsContainer_${groupIndex}" class="price-sections-container-for-group">
-                    <!-- 요금 소그룹들이 여기에 추가됩니다 -->
                 </div>
             </section>
-            <!-- 요금 안내 섹션 끝 -->
 
-            <!-- 포함/불포함 사항 섹션 시작 -->
             <section class="mb-8 inclusion-exclusion-section-wrapper">
                 <h3 class="text-xl font-semibold mb-4 bg-custom-orange p-2 rounded">포함/불포함 사항</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-gray-50 p-4 rounded">
                         <div class="flex justify-between items-center mb-2">
                             <h4 class="text-lg font-medium">포함</h4>
-                            <div class="input-type-options">
-                                <label class="input-type-option"><input type="radio" name="includedItemsInputType_${groupIndex}" value="list" checked> 한줄입력</label>
-                                <label class="input-type-option"><input type="radio" name="includedItemsInputType_${groupIndex}" value="textarea"> 전체 텍스트 입력</label>
-                            </div>
                         </div>
-                        <div class="included-items-list-container items-list-container">
-                            <div class="flex justify-end items-center mb-3">
-                                <button type="button" class="add-list-item text-custom-green hover:text-green-700 mr-2" data-list-id="includedItemsList_${groupIndex}" data-item-name="add_item[${groupIndex}][]" data-placeholder="포함항목 입력"><i class="fas fa-plus-circle text-lg"></i></button>
-                                <button type="button" class="clear-list-items text-red-500 hover:text-red-700" data-list-id="includedItemsList_${groupIndex}"><i class="fas fa-trash-alt text-lg"></i></button>
-                            </div>
-                            <ul id="includedItemsList_${groupIndex}" class="space-y-2 list-container"></ul>
-                        </div>
-                        <div class="included-items-textarea-container items-textarea-container" style="display:none;">
+                        <div class="items-textarea-container">
                             <textarea name="included_items_textarea[${groupIndex}]" rows="5" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange" placeholder="* 유류할증료, 제세공과금 포함..."></textarea>
                         </div>
                     </div>
                     <div class="bg-gray-50 p-4 rounded">
                         <div class="flex justify-between items-center mb-2">
                             <h4 class="text-lg font-medium">불포함</h4>
-                            <div class="input-type-options">
-                                <label class="input-type-option"><input type="radio" name="excludedItemsInputType_${groupIndex}" value="list" checked> 한줄입력</label>
-                                <label class="input-type-option"><input type="radio" name="excludedItemsInputType_${groupIndex}" value="textarea"> 전체 텍스트 입력</label>
-                            </div>
                         </div>
-                        <div class="excluded-items-list-container items-list-container">
-                            <div class="flex justify-end items-center mb-3">
-                                <button type="button" class="add-list-item text-custom-orange hover:text-orange-700 mr-2" data-list-id="excludedItemsList_${groupIndex}" data-item-name="min_item[${groupIndex}][]" data-placeholder="불포함항목 입력"><i class="fas fa-plus-circle text-lg"></i></button>
-                                <button type="button" class="clear-list-items text-red-500 hover:text-red-700" data-list-id="excludedItemsList_${groupIndex}"><i class="fas fa-trash-alt text-lg"></i></button>
-                            </div>
-                            <ul id="excludedItemsList_${groupIndex}" class="space-y-2 list-container"></ul>
-                        </div>
-                        <div class="excluded-items-textarea-container items-textarea-container" style="display:none;">
+                        <div class="items-textarea-container">
                             <textarea name="excluded_items_textarea[${groupIndex}]" rows="5" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange" placeholder="● 현지 개인 경비..."></textarea>
                         </div>
                     </div>
                 </div>
             </section>
-            <!-- 포함/불포함 사항 섹션 끝 -->
 
-            <!-- 항공 스케줄 섹션 시작 -->
             <section class="mb-8 flight-schedule-section-wrapper">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-semibold bg-custom-orange p-2 rounded" style="flex-grow: 1;">항공 스케줄</h3>
@@ -220,27 +196,21 @@ function enableSelectOnFocus(containerSelector = 'body') {
                     </button>
                 </div>
                 <div id="flightScheduleGroupsContainer_${groupIndex}" class="flight-schedule-groups-container-for-group">
-                    <!-- 항공 스케줄 소그룹들이 여기에 추가됩니다 -->
                 </div>
             </section>
-            <!-- 항공 스케줄 섹션 끝 -->
 
-            <!-- 일정표 (요약) 섹션 시작 -->
             <section class="mb-8 itinerary-summary-section-wrapper">
                 <h3 class="text-xl font-semibold mb-4 bg-custom-orange p-2 rounded">일정표 (요약)</h3>
                 <div class="overflow-x-auto">
                     <table class="min-w-full bg-white border">
                         <thead><tr class="bg-gray-100"><th class="border p-2 text-left" style="width: 8%;">일수</th><th class="border p-2 text-left">날짜</th><th class="border p-2 text-left">출발지</th><th class="border p-2 text-left">도착지</th><th class="border p-2 text-left">숙박</th><th class="border p-2 text-left">이동</th><th class="border p-2 text-left">비고</th><th class="border p-2 text-center w-12">삭제</th></tr></thead>
                         <tbody id="itineraryTableBody_${groupIndex}" class="itinerary-table-body-for-group">
-                            <!-- 기본 한 줄 추가 (복사 시에는 sourceGroupData에서 가져옴) -->
                         </tbody>
                         <tfoot><tr><td colspan="8" class="border p-2"><button type="button" class="add-itinerary-row-to-group bg-custom-green text-white px-3 py-1 rounded hover:bg-opacity-90 transition"><i class="fas fa-plus mr-1"></i> 행 추가</button></td></tr></tfoot>
                     </table>
                 </div>
             </section>
-            <!-- 일정표 (요약) 섹션 끝 -->
 
-            <!-- 상품일정 상세 (일정표) 섹션 시작 -->
             <section class="mb-8 itinerary-detail-section-wrapper">
                 <div class="mb-4">
                     <label class="block text-gray-700 mb-2" style="font-size: 18px;font-weight: 700;">상품일정 상세 (일정표)</label>
@@ -248,7 +218,6 @@ function enableSelectOnFocus(containerSelector = 'body') {
                     <textarea id="goods_schedule_hidden_${groupIndex}" name="goods_schedule[${groupIndex}]" class="goods-schedule-hidden-for-group" style="display:none;"></textarea>
                 </div>
             </section>
-            <!-- 상품일정 상세 (일정표) 섹션 끝 -->
         `;
 
         const quoteGroupsContainer = document.getElementById('quoteGroupsContainer');
@@ -275,8 +244,6 @@ function enableSelectOnFocus(containerSelector = 'body') {
         if (titleInputToFocus && !sourceGroupData) titleInputToFocus.focus();
     }
 
-    // ---- 각 견적 그룹 내의 섹션 초기화 및 이벤트 핸들러 함수들 ----
-
     function initPriceSectionForGroup(quoteGroupElement, groupIndex, sourcePriceSubgroups = null) {
         const addPriceSubgroupButton = quoteGroupElement.querySelector('.add-price-subgroup-button');
         const priceSectionsContainer = quoteGroupElement.querySelector(`#priceSectionsContainer_${groupIndex}`);
@@ -299,7 +266,7 @@ function enableSelectOnFocus(containerSelector = 'body') {
     const sectionId = `priceSection_${groupIndex}_${subGroupIndex}`; 
     const tableBodyId = `priceTableBody_${groupIndex}_${subGroupIndex}`; 
     const grandTotalId = `grandTotal_${groupIndex}_${subGroupIndex}`; 
-    const groupTitleInputName = `price_subgroup_title[${groupIndex}][${subGroupIndex}]`; // name 속성 변경 (price_group_title -> price_subgroup_title)
+    const groupTitleInputName = `price_subgroup_title[${groupIndex}][${subGroupIndex}]`;
 
     const sectionDiv = document.createElement('div'); 
     sectionDiv.className = 'dynamic-section price-subgroup'; 
@@ -307,18 +274,17 @@ function enableSelectOnFocus(containerSelector = 'body') {
     sectionDiv.dataset.groupIndex = groupIndex; 
     sectionDiv.dataset.subGroupIndex = subGroupIndex;
 
-    const initialSubgroupTitle = sourceSubgroupData ? sourceSubgroupData.title : ""; // 복사 시 제목 설정
+    const initialSubgroupTitle = sourceSubgroupData ? sourceSubgroupData.title : "";
 
     sectionDiv.innerHTML = `
         <button type="button" class="delete-dynamic-section delete-dynamic-section-btn text-red-500 hover:text-red-700" title="이 요금 소그룹 삭제"><i class="fas fa-trash-alt mr-1"></i>삭제</button>
-        <div class="mb-2"> <!-- 이 부분이 다시 추가됩니다 -->
+        <div class="mb-2">
             <input type="text" name="${groupTitleInputName}" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange text-lg font-semibold" placeholder="견적설명 (예: 기본형, 업그레이드형)" value="${initialSubgroupTitle}">
         </div>
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border price-table">
                 <thead><tr class="bg-gray-100"><th class="border p-2 text-center" style="width: 20%;">내역</th><th class="border p-2 text-center" style="width: 15%;">1인당 금액</th><th class="border p-2 text-center" style="width: 8%;">인원</th><th class="border p-2 text-center" style="width: 17%;">총 금액</th><th class="border p-2 text-center">비고</th><th class="border p-2 text-center w-12">삭제</th></tr></thead>
                 <tbody id="${tableBodyId}" class="price-table-body">
-                    <!-- 행들은 sourceSubgroupData 또는 기본값으로 채워짐 -->
                 </tbody>
                 <tfoot><tr><td colspan="3" class="border p-2 text-right font-bold">총 합계</td><td class="border p-2 font-bold"><input type="text" name="p_sumprice[${groupIndex}][${subGroupIndex}]" id="${grandTotalId}" class="w-full border-0 focus:ring-0 grand-total-input" value="0" readonly></td><td colspan="2" class="border p-2"><button type="button" class="add-price-row-to-subgroup bg-custom-green text-white px-3 py-1 rounded hover:bg-opacity-90 transition text-sm"><i class="fas fa-plus mr-1"></i> 행 추가</button></td></tr></tfoot>
             </table>
@@ -343,7 +309,10 @@ function enableSelectOnFocus(containerSelector = 'body') {
 
     function initPriceTableForSubgroup(subgroupElement) {
         subgroupElement.querySelectorAll('.price-per-person, .person-count').forEach(input => { input.addEventListener('input', (e) => updateRowTotalForSubgroup(e, subgroupElement)); });
-        subgroupElement.querySelectorAll('.price-table-body tr').forEach(row => { const firstInput = row.querySelector('.price-per-person'); if (firstInput) updateRowTotalForSubgroup({ target: firstInput }, subgroupElement); });
+        subgroupElement.querySelectorAll('.price-table-body tr').forEach(row => { 
+            const firstInput = row.querySelector('.price-per-person'); 
+            if (firstInput) updateRowTotalForSubgroup({ target: firstInput }, subgroupElement); 
+        });
         
         const addRowButton = subgroupElement.querySelector('.add-price-row-to-subgroup');
         if (addRowButton) {
@@ -353,16 +322,25 @@ function enableSelectOnFocus(containerSelector = 'body') {
 
     function updateRowTotalForSubgroup(event, subgroupElement) {
         const row = event.target.closest('tr');
-        if (!row) return; const pricePerPersonInput = row.querySelector('.price-per-person'); const personCountInput = row.querySelector('.person-count'); const totalPriceInput = row.querySelector('.total-price');
+        if (!row) return; 
+        const pricePerPersonInput = row.querySelector('.price-per-person'); 
+        const personCountInput = row.querySelector('.person-count'); 
+        const totalPriceInput = row.querySelector('.total-price');
         if (!pricePerPersonInput || !personCountInput || !totalPriceInput) return;
-        const pricePerPerson = parseFloat(pricePerPersonInput.value) || 0; const personCount = parseInt(personCountInput.value) || 0;
-        totalPriceInput.value = (pricePerPerson * personCount).toLocaleString(); updateGrandTotalForSubgroup(subgroupElement);
+        
+        const pricePerPerson = parseFloat(pricePerPersonInput.value) || 0; 
+        const personCount = parseInt(personCountInput.value) || 0;
+        totalPriceInput.value = (pricePerPerson * personCount).toLocaleString(); 
+        updateGrandTotalForSubgroup(subgroupElement);
     }
 
     function updateGrandTotalForSubgroup(subgroupElement) {
         let grandTotal = 0;
-        subgroupElement.querySelectorAll('.price-table-body .total-price').forEach(cell => { grandTotal += parseFloat(cell.value.replace(/,/g, '')) || 0; });
-        const grandTotalInput = subgroupElement.querySelector('.grand-total-input'); if (grandTotalInput) grandTotalInput.value = grandTotal.toLocaleString();
+        subgroupElement.querySelectorAll('.price-table-body .total-price').forEach(cell => { 
+            grandTotal += parseFloat(cell.value.replace(/,/g, '')) || 0; 
+        });
+        const grandTotalInput = subgroupElement.querySelector('.grand-total-input'); 
+        if (grandTotalInput) grandTotalInput.value = grandTotal.toLocaleString();
     }
 
     function addPriceRowToExistingSubgroup(event, subgroupElement, rowData = null) {
@@ -382,6 +360,9 @@ function enableSelectOnFocus(containerSelector = 'body') {
         tr.innerHTML = `<td class="border p-2"><input type="text" name="p_title[${groupIndex}][${subGroupIndex}][]" value="${titleVal}" class="w-full border-0 focus:ring-0"></td><td class="border p-2"><input type="number" name="p_perprice[${groupIndex}][${subGroupIndex}][]" class="price-per-person w-full border-0 focus:ring-0" value="${perPriceVal}"></td><td class="border p-2"><input type="number" name="p_number[${groupIndex}][${subGroupIndex}][]" class="person-count w-full border-0 focus:ring-0" value="${numberVal}"></td><td class="border p-2"><input type="text" name="p_totalprice[${groupIndex}][${subGroupIndex}][]" class="w-full border-0 focus:ring-0 total-price" value="0" readonly></td><td class="border p-2"><input type="text" name="p_bigo[${groupIndex}][${subGroupIndex}][]" class="w-full border-0 focus:ring-0" value="${bigoVal}"></td><td class="border p-2 text-center"><button type="button" class="delete-row text-red-500 hover:text-red-700" title="삭제"><i class="fas fa-trash"></i></button></td>`;
         tbody.appendChild(tr); 
         
+        tr.querySelectorAll('.price-per-person, .person-count').forEach(input => { 
+            input.addEventListener('input', (e) => updateRowTotalForSubgroup(e, subgroupElement)); 
+        });
         const firstInput = tr.querySelector('.price-per-person'); 
         if (firstInput) updateRowTotalForSubgroup({ target: firstInput }, subgroupElement);
     }
@@ -405,7 +386,8 @@ function enableSelectOnFocus(containerSelector = 'body') {
     }
 
     function createFlightSubgroup(container, groupIndex, subGroupIndex, sourceSubgroupData = null) {
-        const groupId = `flightScheduleGroup_${groupIndex}_${subGroupIndex}`; const gdsInputId = `gdsInput_${groupIndex}_${subGroupIndex}`; const parseButtonId = `parseGdsButton_${groupIndex}_${subGroupIndex}`; const tableBodyId = `flightTableBody_${groupIndex}_${subGroupIndex}`; 
+        const groupId = `flightScheduleGroup_${groupIndex}_${subGroupIndex}`; 
+        const tableBodyId = `flightTableBody_${groupIndex}_${subGroupIndex}`; 
         const groupTitleInputName = `flight_group_title[${groupIndex}][${subGroupIndex}]`;
         
         const groupDiv = document.createElement('div'); 
@@ -420,11 +402,6 @@ function enableSelectOnFocus(containerSelector = 'body') {
             <button type="button" class="delete-dynamic-section delete-dynamic-section-btn text-red-500 hover:text-red-700" title="이 항공 스케줄 소그룹 삭제"><i class="fas fa-trash-alt mr-1"></i>삭제</button>
             <div class="mb-2">
                 <input type="text" name="${groupTitleInputName}" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange text-lg font-semibold" placeholder="항공사 (예: 이스타항공)" value="${initialTitle}">
-            </div>
-            <div class="mb-4 bg-gray-50 p-4 rounded" style="display: none;"> 
-                <label class="block text-gray-700 mb-2">GDS 항공 텍스트 입력</label>
-                <textarea id="${gdsInputId}" rows="4" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange" placeholder="GDS 텍스트를 여기에 붙여넣으세요..."></textarea>
-                <button type="button" id="${parseButtonId}" class="mt-2 bg-custom-orange text-white px-4 py-2 rounded hover:bg-opacity-90 transition parse-gds-for-subgroup">항공 정보 파싱</button>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full bg-white border">
@@ -451,16 +428,7 @@ function enableSelectOnFocus(containerSelector = 'body') {
                 if (targetTbody) addFlightRowForSubgroup(targetTbody, groupIndex, subGroupIndex);
             });
         }
-        const parseGdsBtn = groupDiv.querySelector('.parse-gds-for-subgroup');
-        if(parseGdsBtn){
-            parseGdsBtn.addEventListener('click', () => {
-                const gdsInput = groupDiv.querySelector('textarea[id^="gdsInput_"]');
-                const targetTbody = groupDiv.querySelector('tbody.flight-table-body-subgroup');
-                if (gdsInput && targetTbody) {
-                    parseGdsForSubgroup(gdsInput.value, targetTbody, groupIndex, subGroupIndex);
-                }
-            });
-        }
+
         groupDiv.addEventListener('paste', function(e) { 
             if (e.target.matches('.flight-schedule-input')) { 
                 handlePasteToFlightTableForSubgroup(e, groupIndex, subGroupIndex); 
@@ -475,131 +443,68 @@ function enableSelectOnFocus(containerSelector = 'body') {
     }
 
     function handlePasteToFlightTableForSubgroup(event, groupIndex, subGroupIndex) {
-        const targetInput = event.target; if (!targetInput.matches('.flight-schedule-input')) return; event.preventDefault(); const pasteData = (event.clipboardData || window.clipboardData).getData('text/plain'); const rowsOfData = pasteData.split(/\r\n|\n|\r/);
-        let currentRowElement = targetInput.closest('tr'); let currentCellIndexInRow = Array.from(currentRowElement.cells).indexOf(targetInput.closest('td')); 
+        const targetInput = event.target; 
+        if (!targetInput.matches('.flight-schedule-input')) return; 
+        event.preventDefault(); 
+        const pasteData = (event.clipboardData || window.clipboardData).getData('text/plain'); 
+        const rowsOfData = pasteData.split(/\r\n|\n|\r/);
+        
+        let currentRowElement = targetInput.closest('tr'); 
+        let currentCellIndexInRow = Array.from(currentRowElement.cells).indexOf(targetInput.closest('td')); 
         const currentTbody = currentRowElement.closest('tbody.flight-table-body-subgroup');
-        rowsOfData.forEach((rowText) => { if (!rowText.trim()) return; const cellsOfData = rowText.split('\t');
-            if (!currentRowElement) { currentRowElement = addFlightRowForSubgroup(currentTbody, groupIndex, subGroupIndex); if (!currentRowElement) return; currentCellIndexInRow = 0; }
-            const inputFieldsInCurrentRow = currentRowElement.querySelectorAll('.flight-schedule-input'); let dataCellIdx = 0;
-            for (let i = currentCellIndexInRow; i < inputFieldsInCurrentRow.length && dataCellIdx < cellsOfData.length; i++) { inputFieldsInCurrentRow[i].value = cellsOfData[dataCellIdx].trim(); dataCellIdx++; }
-            const nextTRElement = currentRowElement.nextElementSibling; if (nextTRElement && nextTRElement.cells.length > 0) { currentRowElement = nextTRElement; } else { currentRowElement = null; } currentCellIndexInRow = 0;
-        });
-    }
 
-    function parseGdsForSubgroup(gdsInputText, targetTbodyElement, groupIndex, subGroupIndex) {
-        if (!gdsInputText.trim() || !targetTbodyElement) return; targetTbodyElement.innerHTML = ''; const lines = gdsInputText.split('\n'); let cityCodeMap = {};
-        lines.forEach(line => { if (!line.trim()) return; const parts = line.split(/\s+/).filter(p => p); let flightNumber = '', departureDateStr = '', originCity = '', departureTime = '', arrivalDateStr = '', destinationCity = '', arrivalTime = '';
-            if (parts.length > 1) { const flightCandidate = parts[1]; const flightRegex = /^([A-Z0-9]{2})(\d{3,4})$/; const flightMatch = flightCandidate.match(flightRegex); if (flightMatch) { flightNumber = `${flightMatch[1]} ${flightMatch[2]}`; } else { const fallbackFlightMatch = line.match(/([A-Z0-9]{2})\s*(\d{3,4})/); if (fallbackFlightMatch && fallbackFlightMatch[2] && fallbackFlightMatch[2].length >= 3) { flightNumber = `${fallbackFlightMatch[1]} ${fallbackFlightMatch[2]}`; } else { flightNumber = flightCandidate; }}}
-            const dateRegex = /(\d{1,2})([A-Z]{3})/; const depDateMatch = line.match(dateRegex); if (depDateMatch && monthMap[depDateMatch[2].toUpperCase()]) { departureDateStr = `${monthMap[depDateMatch[2].toUpperCase()]}월 ${depDateMatch[1]}일`;}
-            const timeAndMaybeArrDateRegex = /(\d{4})\s+(\d{4})(?:\s+(\d{1,2})([A-Z]{3}))?/; const timeMatch = line.match(timeAndMaybeArrDateRegex);
-            if (timeMatch) { departureTime = `${timeMatch[1].slice(0, 2)}:${timeMatch[1].slice(2)}`; arrivalTime   = `${timeMatch[2].slice(0, 2)}:${timeMatch[2].slice(2)}`; if (timeMatch[3] && timeMatch[4] && monthMap[timeMatch[4].toUpperCase()]) { arrivalDateStr = `${monthMap[timeMatch[4].toUpperCase()]}월 ${timeMatch[3]}일`;} else if (departureDateStr) { const depDateObj = parseDateStrToDateObj(departureDateStr); if (depDateObj) { const depHour = parseInt(departureTime.substring(0,2)); const arrHour = parseInt(arrivalTime.substring(0,2)); if (arrHour < depHour || (arrHour === depHour && parseInt(arrivalTime.substring(3,5)) < parseInt(departureTime.substring(3,5)) )) { depDateObj.setDate(depDateObj.getDate() + 1); } arrivalDateStr = `${depDateObj.getMonth() + 1}월 ${depDateObj.getDate()}일`;} else { arrivalDateStr = departureDateStr; }}}
-            let citiesFound = false; for (const part of parts) { if (part.length === 6 && /^[A-Z]{6}$/.test(part)) { originCity = cityCodeMap[part.substring(0, 3)] || part.substring(0, 3); destinationCity = cityCodeMap[part.substring(3, 6)] || part.substring(3, 6); citiesFound = true; break; }}
-            if (!citiesFound) { const sixLetterCityMatch = line.match(/\b([A-Z]{6})\b/); if (sixLetterCityMatch) { const cityPair = sixLetterCityMatch[0]; originCity = cityCodeMap[cityPair.substring(0, 3)] || cityPair.substring(0, 3); destinationCity = cityCodeMap[cityPair.substring(3, 6)] || cityPair.substring(3, 6); }}
-            addFlightRowForSubgroup(targetTbodyElement, groupIndex, subGroupIndex, flightNumber, departureDateStr, originCity, departureTime, arrivalDateStr, destinationCity, arrivalTime);
+        rowsOfData.forEach((rowText) => { 
+            if (!rowText.trim()) return; 
+            const cellsOfData = rowText.split('\t');
+            
+            if (!currentRowElement) {
+                currentRowElement = addFlightRowForSubgroup(currentTbody, groupIndex, subGroupIndex); 
+                if (!currentRowElement) return; 
+                currentCellIndexInRow = 0; 
+            }
+            
+            const inputFieldsInCurrentRow = currentRowElement.querySelectorAll('.flight-schedule-input'); 
+            let dataCellIdx = 0;
+            for (let i = currentCellIndexInRow; i < inputFieldsInCurrentRow.length && dataCellIdx < cellsOfData.length; i++) { 
+                inputFieldsInCurrentRow[i].value = cellsOfData[dataCellIdx].trim(); 
+                dataCellIdx++; 
+            }
+            
+            const nextTRElement = currentRowElement.nextElementSibling; 
+            if (nextTRElement && nextTRElement.cells.length > 0) { 
+                currentRowElement = nextTRElement; 
+            } else { 
+                currentRowElement = null; 
+            } 
+            currentCellIndexInRow = 0; 
         });
     }
 
     function initInclusionExclusionForGroup(quoteGroupElement, groupIndex, sourceData = null) {
-        const includedRadioList = quoteGroupElement.querySelector(`input[name="includedItemsInputType_${groupIndex}"][value="list"]`);
-        const includedRadioTextarea = quoteGroupElement.querySelector(`input[name="includedItemsInputType_${groupIndex}"][value="textarea"]`);
-        const includedListContainerUL = quoteGroupElement.querySelector(`#includedItemsList_${groupIndex}`); // ul 요소
         const includedTextarea = quoteGroupElement.querySelector(`textarea[name="included_items_textarea[${groupIndex}]"]`);
-
-        const excludedRadioList = quoteGroupElement.querySelector(`input[name="excludedItemsInputType_${groupIndex}"][value="list"]`);
-        const excludedRadioTextarea = quoteGroupElement.querySelector(`input[name="excludedItemsInputType_${groupIndex}"][value="textarea"]`);
-        const excludedListContainerUL = quoteGroupElement.querySelector(`#excludedItemsList_${groupIndex}`); // ul 요소
         const excludedTextarea = quoteGroupElement.querySelector(`textarea[name="excluded_items_textarea[${groupIndex}]"]`);
 
         if (sourceData && sourceData.inclusionExclusion) {
             const ieData = sourceData.inclusionExclusion;
-            if (ieData.includedType === 'textarea') {
-                if(includedRadioTextarea) includedRadioTextarea.checked = true;
-                if (includedTextarea) includedTextarea.value = ieData.includedTextarea;
-            } else {
-                if(includedRadioList) includedRadioList.checked = true;
-                if (includedListContainerUL && ieData.includedList) {
-                    includedListContainerUL.innerHTML = ''; // 기존 항목 제거
-                    ieData.includedList.forEach(itemVal => {
-                        addListItemForGroup(`includedItemsList_${groupIndex}`, `add_item[${groupIndex}][]`, "포함항목 입력", quoteGroupElement, itemVal);
-                    });
-                }
+            if (includedTextarea && typeof ieData.includedTextarea !== 'undefined') {
+                includedTextarea.value = ieData.includedTextarea;
             }
-            if (ieData.excludedType === 'textarea') {
-                if(excludedRadioTextarea) excludedRadioTextarea.checked = true;
-                if (excludedTextarea) excludedTextarea.value = ieData.excludedTextarea;
-            } else {
-                if(excludedRadioList) excludedRadioList.checked = true;
-                if (excludedListContainerUL && ieData.excludedList) {
-                    excludedListContainerUL.innerHTML = ''; // 기존 항목 제거
-                    ieData.excludedList.forEach(itemVal => {
-                        addListItemForGroup(`excludedItemsList_${groupIndex}`, `min_item[${groupIndex}][]`, "불포함항목 입력", quoteGroupElement, itemVal);
-                    });
-                }
+            if (excludedTextarea && typeof ieData.excludedTextarea !== 'undefined') {
+                excludedTextarea.value = ieData.excludedTextarea;
             }
-            const eventTargetForIncluded = includedRadioList.checked ? includedRadioList : includedRadioTextarea;
-            if (eventTargetForIncluded) toggleInclusionInputTypeForGroup({ target: eventTargetForIncluded }, quoteGroupElement, groupIndex);
-            
-            const eventTargetForExcluded = excludedRadioList.checked ? excludedRadioList : excludedRadioTextarea;
-            if (eventTargetForExcluded) toggleInclusionInputTypeForGroup({ target: eventTargetForExcluded }, quoteGroupElement, groupIndex);
         }
-
-        quoteGroupElement.querySelectorAll(`input[name="includedItemsInputType_${groupIndex}"], input[name="excludedItemsInputType_${groupIndex}"]`).forEach(radio => {
-            radio.addEventListener('change', (e) => toggleInclusionInputTypeForGroup(e, quoteGroupElement, groupIndex));
-        });
-        quoteGroupElement.querySelectorAll('.add-list-item').forEach(button => { 
-            button.addEventListener('click', function() { 
-                addListItemForGroup(this.dataset.listId, this.dataset.itemName, this.dataset.placeholder, quoteGroupElement); 
-            }); 
-        });
-        quoteGroupElement.querySelectorAll('.clear-list-items').forEach(button => { 
-            button.addEventListener('click', function() { 
-                clearListForGroup(this.dataset.listId, quoteGroupElement); 
-            }); 
-        });
-    }
-
-    function toggleInclusionInputTypeForGroup(event, quoteGroupElement, groupIndex) {
-        const inputType = event.target.value; const nameGroup = event.target.name; 
-        let listContainer, textareaContainer;
-        if (nameGroup === `includedItemsInputType_${groupIndex}`) { 
-            listContainer = quoteGroupElement.querySelector(`#includedItemsList_${groupIndex}`).closest('.items-list-container'); 
-            textareaContainer = quoteGroupElement.querySelector(`textarea[name="included_items_textarea[${groupIndex}]"]`).closest('.items-textarea-container');
-        } else if (nameGroup === `excludedItemsInputType_${groupIndex}`) { 
-            listContainer = quoteGroupElement.querySelector(`#excludedItemsList_${groupIndex}`).closest('.items-list-container'); 
-            textareaContainer = quoteGroupElement.querySelector(`textarea[name="excluded_items_textarea[${groupIndex}]"]`).closest('.items-textarea-container');
-        }
-        if (listContainer && textareaContainer) { 
-            if (inputType === 'list') { listContainer.style.display = 'block'; textareaContainer.style.display = 'none'; } 
-            else { listContainer.style.display = 'none'; textareaContainer.style.display = 'block';}
-        }
-    }
-
-    function addListItemForGroup(listId, itemName, placeholderText, quoteGroupElement, value = "") {
-        const ul = quoteGroupElement.querySelector(`#${listId}`); if (!ul) return;
-        const li = document.createElement('li'); li.className = 'flex items-center gap-2';
-        li.innerHTML = `<input type="text" name="${itemName}" value="${value}" class="flex-grow border-0 bg-transparent focus:ring-0" placeholder="${placeholderText}"><button type="button" class="delete-item text-red-500 hover:text-red-700"><i class="fas fa-times"></i></button>`;
-        ul.appendChild(li); 
-        if (!value && document.activeElement !== li.querySelector('input')) {
-          setTimeout(() => li.querySelector('input').focus(), 0); // 복제시 불필요한 포커스 방지
-        }
-    }
-
-    function clearListForGroup(listId, quoteGroupElement) { 
-        const ul = quoteGroupElement.querySelector(`#${listId}`); 
-        if (ul) ul.innerHTML = ''; 
     }
 
     function initItinerarySummaryForGroup(quoteGroupElement, groupIndex, sourceItineraryRows = null) {
         const addRowButton = quoteGroupElement.querySelector('.add-itinerary-row-to-group');
         const tbody = quoteGroupElement.querySelector(`#itineraryTableBody_${groupIndex}`);
         
-        tbody.innerHTML = ''; // 항상 비우고 시작 (createQuoteGroup에서 기본행 추가 로직과 중복 방지 및 복사 시 깨끗한 상태에서 시작)
+        tbody.innerHTML = ''; 
         if (sourceItineraryRows && sourceItineraryRows.length > 0) {
             sourceItineraryRows.forEach(rowData => {
                 addItineraryRowForGroup(tbody, groupIndex, rowData.dayNo, rowData.dayDate, rowData.sCity, rowData.eCity, rowData.hotel, rowData.traffic, rowData.bigo);
             });
-        } else if (!sourceItineraryRows) { // 복사가 아니고, 새 그룹 생성 시 (createQuoteGroup에서 호출)
-             addItineraryRowForGroup(tbody, groupIndex); 
+        } else if (!sourceItineraryRows) { 
         }
 
         if (addRowButton && tbody) {
@@ -611,21 +516,51 @@ function enableSelectOnFocus(containerSelector = 'body') {
     }
 
     function addItineraryRowForGroup(tbodyElement, groupIndex, dayNoVal = "", dayDateVal = "", sCityVal = "", eCityVal = "", hotelVal = "", trafficVal = "", bigoVal = "") {
-        if (!tbodyElement) return null; const tr = document.createElement('tr');
+        if (!tbodyElement) return null; 
+        const tr = document.createElement('tr');
         tr.innerHTML = `<td class="border p-2"><input type="text" name="schdule_no[${groupIndex}][]" class="w-full border-0 focus:ring-0 itinerary-schedule-input" value="${dayNoVal}"></td><td class="border p-2"><input type="text" name="schdule_day[${groupIndex}][]" class="w-full border-0 focus:ring-0 itinerary-schedule-input" value="${dayDateVal}"></td><td class="border p-2"><input type="text" name="schdule_scity[${groupIndex}][]" class="w-full border-0 focus:ring-0 itinerary-schedule-input" value="${sCityVal}"></td><td class="border p-2"><input type="text" name="schdule_ecity[${groupIndex}][]" class="w-full border-0 focus:ring-0 itinerary-schedule-input" value="${eCityVal}"></td><td class="border p-2"><input type="text" name="schdule_hotel[${groupIndex}][]" class="w-full border-0 focus:ring-0 itinerary-schedule-input" value="${hotelVal}"></td><td class="border p-2"><input type="text" name="schdule_traffic[${groupIndex}][]" class="w-full border-0 focus:ring-0 itinerary-schedule-input" value="${trafficVal}"></td><td class="border p-2"><input type="text" name="schdule_bigo[${groupIndex}][]" class="w-full border-0 focus:ring-0 itinerary-schedule-input" value="${bigoVal}"></td><td class="border p-2 text-center"><button type="button" class="delete-row text-red-500 hover:text-red-700" title="삭제"><i class="fas fa-trash"></i></button></td>`;
-        tbodyElement.appendChild(tr); const inputs = tr.querySelectorAll('.itinerary-schedule-input');
-        if (inputs[0] && !inputs[0].value) inputs[0].placeholder = "일수"; if (inputs[1] && !inputs[1].value) inputs[1].placeholder = "날짜";
+        tbodyElement.appendChild(tr); 
+        
+        const inputs = tr.querySelectorAll('.itinerary-schedule-input');
+        if (inputs[0] && !inputs[0].value) inputs[0].placeholder = "일수"; 
+        if (inputs[1] && !inputs[1].value) inputs[1].placeholder = "날짜";
         return tr;
     }
 
     function handlePasteToItineraryTableForGroup(event, tbodyElement, groupIndex) {
-        const targetInput = event.target; if (!targetInput.matches('.itinerary-schedule-input')) return; event.preventDefault(); const pasteData = (event.clipboardData || window.clipboardData).getData('text/plain'); const rowsOfData = pasteData.split(/\r\n|\n|\r/);
-        let currentRowElement = targetInput.closest('tr'); let currentCellIndexInRow = Array.from(currentRowElement.cells).indexOf(targetInput.closest('td'));
-        rowsOfData.forEach((rowText) => { if (!rowText.trim()) return; const cellsOfData = rowText.split('\t');
-            if (!currentRowElement) { currentRowElement = addItineraryRowForGroup(tbodyElement, groupIndex); if (!currentRowElement) return; currentCellIndexInRow = 0; }
-            const inputFieldsInCurrentRow = currentRowElement.querySelectorAll('.itinerary-schedule-input'); let dataCellIdx = 0;
-            for (let i = currentCellIndexInRow; i < inputFieldsInCurrentRow.length && dataCellIdx < cellsOfData.length; i++) { inputFieldsInCurrentRow[i].value = cellsOfData[dataCellIdx].trim(); dataCellIdx++; }
-            const nextTRElement = currentRowElement.nextElementSibling; if (nextTRElement && nextTRElement.cells.length > 0) { currentRowElement = nextTRElement; } else { currentRowElement = null; } currentCellIndexInRow = 0;
+        const targetInput = event.target; 
+        if (!targetInput.matches('.itinerary-schedule-input')) return; 
+        event.preventDefault(); 
+        const pasteData = (event.clipboardData || window.clipboardData).getData('text/plain'); 
+        const rowsOfData = pasteData.split(/\r\n|\n|\r/);
+        
+        let currentRowElement = targetInput.closest('tr'); 
+        let currentCellIndexInRow = Array.from(currentRowElement.cells).indexOf(targetInput.closest('td'));
+        
+        rowsOfData.forEach((rowText) => { 
+            if (!rowText.trim()) return; 
+            const cellsOfData = rowText.split('\t');
+            
+            if (!currentRowElement) { 
+                currentRowElement = addItineraryRowForGroup(tbodyElement, groupIndex); 
+                if (!currentRowElement) return; 
+                currentCellIndexInRow = 0; 
+            }
+            
+            const inputFieldsInCurrentRow = currentRowElement.querySelectorAll('.itinerary-schedule-input'); 
+            let dataCellIdx = 0;
+            for (let i = currentCellIndexInRow; i < inputFieldsInCurrentRow.length && dataCellIdx < cellsOfData.length; i++) { 
+                inputFieldsInCurrentRow[i].value = cellsOfData[dataCellIdx].trim(); 
+                dataCellIdx++; 
+            }
+            
+            const nextTRElement = currentRowElement.nextElementSibling; 
+            if (nextTRElement && nextTRElement.cells.length > 0) { 
+                currentRowElement = nextTRElement; 
+            } else { 
+                currentRowElement = null; 
+            } 
+            currentCellIndexInRow = 0; 
         });
     }
 
@@ -633,20 +568,34 @@ function enableSelectOnFocus(containerSelector = 'body') {
         const editableDiv = quoteGroupElement.querySelector(`#goods_schedule_editable_${groupIndex}`);
         const hiddenTextarea = quoteGroupElement.querySelector(`#goods_schedule_hidden_${groupIndex}`);
 
-        if (sourceData && typeof sourceData.itineraryDetail !== 'undefined') { // sourceData.itineraryDetail이 null일 수도 있으므로 undefined와 비교
+        if (sourceData && typeof sourceData.itineraryDetail !== 'undefined') {
             editableDiv.innerHTML = sourceData.itineraryDetail;
             hiddenTextarea.value = sourceData.itineraryDetail;
-        } else if (!sourceData) { // 새 그룹 생성 시 (복사 아님)
-            editableDiv.innerHTML = ''; // 내용 비우기
+        } else if (!sourceData) { 
+            editableDiv.innerHTML = ''; 
             hiddenTextarea.value = '';
         }
 
-
         if (editableDiv && hiddenTextarea) {
-            editableDiv.addEventListener('input', function() { hiddenTextarea.value = this.innerHTML; });
-            if (!editableDiv.textContent.trim() && editableDiv.getAttribute('placeholder')) { editableDiv.classList.add('is-placeholder'); }
-            editableDiv.addEventListener('focus', function() { this.classList.remove('is-placeholder'); });
-            editableDiv.addEventListener('blur', function() { if (!this.textContent.trim() && this.getAttribute('placeholder')) { this.classList.add('is-placeholder'); } });
+            editableDiv.addEventListener('input', function() { 
+                hiddenTextarea.value = this.innerHTML; 
+                if (!this.textContent.trim() && this.getAttribute('placeholder')) {
+                    this.classList.add('is-placeholder');
+                } else {
+                    this.classList.remove('is-placeholder');
+                }
+            });
+            if (!editableDiv.textContent.trim() && editableDiv.getAttribute('placeholder')) { 
+                editableDiv.classList.add('is-placeholder'); 
+            }
+            editableDiv.addEventListener('focus', function() { 
+                this.classList.remove('is-placeholder'); 
+            });
+            editableDiv.addEventListener('blur', function() { 
+                if (!this.textContent.trim() && this.getAttribute('placeholder')) { 
+                    this.classList.add('is-placeholder'); 
+                } 
+            });
         }
     }
 
@@ -660,28 +609,19 @@ function enableSelectOnFocus(containerSelector = 'body') {
         });
     }
     
-    function parseDateStrToDateObj(dateStr) {
-        if (!dateStr) return null; const match = dateStr.match(/(\d+)월\s*(\d+)일/);
-        if (match) { const year = new Date().getFullYear(); return new Date(year, parseInt(match[1]) - 1, parseInt(match[2]));}
-        return null;
-    }
-
 document.addEventListener('DOMContentLoaded', function() {
     enableSelectOnFocus('form[name="form1"]');
-   createQuoteGroup(quoteGroupCounter++); // 첫 번째 견적 그룹 자동 생성
+    createQuoteGroup(quoteGroupCounter++); 
 
     document.getElementById('quoteGroupsContainer').addEventListener('click', function(e) {
         const quoteGroupElement = e.target.closest('.quote-group-section');
         if (!quoteGroupElement) return;
 
-        const priceSubgroupElement = e.target.closest('.price-subgroup');
+        const priceSubgroupElement = e.target.closest('.price-subgroup'); 
 
         if (e.target.closest('.delete-quote-group-btn')) {
             if (confirm('이 견적 그룹 전체를 삭제하시겠습니까?')) {
                 quoteGroupElement.remove();
-                 if (document.querySelectorAll('#quoteGroupsContainer .quote-group-section').length === 0) {
-                    // createQuoteGroup(quoteGroupCounter++); // 모든 그룹 삭제 시 새 그룹 자동 생성 (선택사항)
-                }
             }
         } else if (e.target.closest('.add-next-quote-group-btn')) {
             createQuoteGroup(quoteGroupCounter++, quoteGroupElement); 
@@ -701,26 +641,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     updateGrandTotalForSubgroup(priceSubgroupElement);
                 }
              }
-        } else if (e.target.closest('.delete-item')) { 
-            const listItem = e.target.closest('li');
-            if (listItem) listItem.remove();
-        }
+        } 
     });
 });
 
 function duplicateQuoteGroup(sourceGroupElement) {
     const sourceGroupIndex = sourceGroupElement.dataset.groupIndex;
-    const newGroupIndex = quoteGroupCounter++; // 새 그룹을 위한 카운터 증가
+    const newGroupIndex = quoteGroupCounter++;
 
     const sourceData = {
         groupTitle: sourceGroupElement.querySelector(`input[name="quote_group_title[${sourceGroupIndex}]"]`).value,
         priceSubgroups: [],
         inclusionExclusion: {
-            includedType: sourceGroupElement.querySelector(`input[name="includedItemsInputType_${sourceGroupIndex}"]:checked`)?.value || 'list',
-            includedList: Array.from(sourceGroupElement.querySelectorAll(`#includedItemsList_${sourceGroupIndex} input[name^="add_item"]`)).map(input => input.value),
             includedTextarea: sourceGroupElement.querySelector(`textarea[name="included_items_textarea[${sourceGroupIndex}]"]`)?.value || '',
-            excludedType: sourceGroupElement.querySelector(`input[name="excludedItemsInputType_${sourceGroupIndex}"]:checked`)?.value || 'list',
-            excludedList: Array.from(sourceGroupElement.querySelectorAll(`#excludedItemsList_${sourceGroupIndex} input[name^="min_item"]`)).map(input => input.value),
             excludedTextarea: sourceGroupElement.querySelector(`textarea[name="excluded_items_textarea[${sourceGroupIndex}]"]`)?.value || ''
         },
         flightSubgroups: [],
@@ -729,12 +662,11 @@ function duplicateQuoteGroup(sourceGroupElement) {
     };
 
     sourceGroupElement.querySelectorAll('.price-subgroup').forEach(subgroupEl => {
-    const subGroupIndex = subgroupEl.dataset.subGroupIndex;
-    const priceSubgroupData = {
-        title: subgroupEl.querySelector(`input[name="price_subgroup_title[${sourceGroupIndex}][${subGroupIndex}]"]`).value, // 이 줄 복원 및 name 확인
-        rows: []
-    };
-        // 소그룹 제목은 제거되었으므로 title 추출 안 함
+        const subGroupIndex = subgroupEl.dataset.subGroupIndex;
+        const priceSubgroupData = {
+            title: subgroupEl.querySelector(`input[name="price_subgroup_title[${sourceGroupIndex}][${subGroupIndex}]"]`).value,
+            rows: []
+        };
         subgroupEl.querySelectorAll('.price-table-body tr').forEach(rowEl => {
             priceSubgroupData.rows.push({
                 title: rowEl.querySelector(`input[name="p_title[${sourceGroupIndex}][${subGroupIndex}][]"]`).value,
@@ -780,23 +712,9 @@ function duplicateQuoteGroup(sourceGroupElement) {
 
     createQuoteGroup(newGroupIndex, sourceGroupElement, sourceData);
 }
-    // --- 미리보기 HTML 생성 헬퍼 함수들 (이전과 동일하게 유지) ---
-    // _getPreviewTemplateHeaderHTML()
-    // _getPreviewTemplateFooterHTML()
-    // _generatePreviewBasicInfoHTML_Template(form)
-    // _generatePreviewTravelerInfoHTML_Template()
-    // _generatePreviewForSingleQuoteGroupHTML_Template(quoteGroupElement, groupIndex)
-    // _generatePreviewPriceSubgroupsHTML_ForQuoteGroup(quoteGroupElement, groupIndex) // 내부 소그룹 제목 표시 로직은 이미 제거됨
-    // _generatePreviewInclusionsExclusionsHTML_ForQuoteGroup(quoteGroupElement, groupIndex, type)
-    // _generatePreviewFlightSubgroupsHTML_ForQuoteGroup(quoteGroupElement, groupIndex)
-    // _generatePreviewItineraryHTML_ForQuoteGroup(quoteGroupElement, groupIndex)
-    // previewQuote()
-    // downloadGeneratedHTML()
-    // getMobileStylesForDownload()
 
-    // --- 미리보기 HTML 생성 헬퍼 함수들 (모든 수정사항 반영) ---
+    // --- 미리보기 HTML 생성 헬퍼 함수들 ---
 
-    // 템플릿의 헤더 HTML 생성
     function _getPreviewTemplateHeaderHTML() {
         return `
             <tr>
@@ -808,7 +726,6 @@ function duplicateQuoteGroup(sourceGroupElement) {
         `;
     }
 
-    // 템플릿의 푸터 HTML 생성 (배너 부분 삭제)
     function _getPreviewTemplateFooterHTML() {
         return `
             <tr>
@@ -831,12 +748,11 @@ function duplicateQuoteGroup(sourceGroupElement) {
         `;
     }
 
-    // 기본 정보 HTML 생성
     function _generatePreviewBasicInfoHTML_Template(form) {
         const custName = form.custname.value || "고객";
         const introTextRaw = document.getElementById('introText').value || `고객님께서 문의하신 상품에 대한 일정 및 견적 안내입니다.\n더 특별하고 소중한 추억을 만들어 드리기 위해 노력하겠습니다.\n감사합니다.\n\n`;
         const introText = introTextRaw.replace(/\n/g, '<br>');
-        const goodName = form.goodnm.value || "(상품명 없음)"; // 공통 상품명
+        const goodName = form.goodnm.value || "(상품명 없음)";
         const empName = form.empnm.value || "(담당자 없음)";
         const empTel = form.emptel.value || "(연락처 없음)";
         const empMail = form.empmail.value || "(메일 없음)";
@@ -869,18 +785,15 @@ function duplicateQuoteGroup(sourceGroupElement) {
         return html;
     }
     
-    // 예약자 정보 HTML 생성
     function _generatePreviewTravelerInfoHTML_Template() {
         const travelerInfoTextEl = document.getElementById('travelerInfoText');
         if (!travelerInfoTextEl) return "";
-        const travelerInfoText = travelerInfoTextEl.value.replace(/\n/g, '<br>');
+        let travelerInfoText = travelerInfoTextEl.value.trim();
         
-        if (!travelerInfoText.trim() || travelerInfoText === travelerInfoTextEl.placeholder.replace(/\n/g, '<br>')) {
-            // placeholder와 내용이 같거나, 내용이 없으면 표시 안함
-            // (정확한 비교를 위해 placeholder의 <br>도 \n으로 변환 후 비교하거나, 단순히 trim()만으로 판단할 수도 있음)
-             if (!travelerInfoText.trim() || travelerInfoText.trim() === "입력된 예약자 정보가 없습니다.") return "";
+        if (!travelerInfoText || travelerInfoText === travelerInfoTextEl.placeholder.trim()) {
+            return "";
         }
-
+        travelerInfoText = travelerInfoText.replace(/\n/g, '<br>');
 
         return `
             <tr>
@@ -903,156 +816,154 @@ function duplicateQuoteGroup(sourceGroupElement) {
         `;
     }
 
-    // --- 각 "견적 그룹"에 대한 미리보기 HTML 생성 함수들 ---
-    function _generatePreviewForSingleQuoteGroupHTML_Template(quoteGroupElement, groupIndex) {
+    function _generatePreviewForSingleQuoteGroupHTML_Template(quoteGroupElement, groupIndex, isFirstGroup) {
         let groupHTML = "";
         const quoteGroupTitleEl = quoteGroupElement.querySelector(`input[name="quote_group_title[${groupIndex}]"]`);
         const quoteGroupTitle = quoteGroupTitleEl ? quoteGroupTitleEl.value.trim() : `견적 ${parseInt(groupIndex) + 1}`;
-
+        const contentId = `previewQuoteGroupContent_${groupIndex}`;
+        const iconId = `previewQuoteGroupIcon_${groupIndex}`;
+        const initialDisplay = isFirstGroup ? 'table-row-group' : 'none';
+        const initialIconClass = isFirstGroup ? 'fa-minus-square' : 'fa-plus-square';
 
         if (quoteGroupTitle) {
-             groupHTML += `<tr><td style="padding-top:25px; padding-bottom: 10px; font-weight:bold; font-size:16px; color:#1a6f2b; border-bottom: 2px solid #1a6f2b;" class="quote-group-main-title">${quoteGroupTitle}</td></tr>`;
+             groupHTML += `
+                <tr>
+                    <td style="padding-top:25px; padding-bottom: 10px; font-weight:bold; font-size:16px; color:#1a6f2b; border-bottom: 2px solid #1a6f2b; cursor:pointer;" 
+                        class="quote-group-main-title" 
+                        onclick="togglePreviewGroupContent('${contentId}', '${iconId}')">
+                        ${quoteGroupTitle}
+                        <i id="${iconId}" class="fas ${initialIconClass} preview-toggle-icon"></i>
+                    </td>
+                </tr>`;
         }
         
+        groupHTML += `<tbody id="${contentId}" style="display: ${initialDisplay};">`;
         groupHTML += _generatePreviewPriceSubgroupsHTML_ForQuoteGroup(quoteGroupElement, groupIndex);
         groupHTML += _generatePreviewInclusionsExclusionsHTML_ForQuoteGroup(quoteGroupElement, groupIndex, 'included');
         groupHTML += _generatePreviewInclusionsExclusionsHTML_ForQuoteGroup(quoteGroupElement, groupIndex, 'excluded');
         groupHTML += _generatePreviewFlightSubgroupsHTML_ForQuoteGroup(quoteGroupElement, groupIndex);
         groupHTML += _generatePreviewItineraryHTML_ForQuoteGroup(quoteGroupElement, groupIndex);
+        groupHTML += `</tbody>`;
 
         return groupHTML;
     }
 
     function _generatePreviewPriceSubgroupsHTML_ForQuoteGroup(quoteGroupElement, groupIndex) {
-    const priceSubgroups = quoteGroupElement.querySelectorAll('.price-subgroup');
-    if (priceSubgroups.length === 0) return "";
+        const priceSubgroups = quoteGroupElement.querySelectorAll('.price-subgroup');
+        if (priceSubgroups.length === 0) return "";
 
-    let allSubgroupsContent = "";
-    let hasAnyPriceData = false;
+        let allSubgroupsContent = "";
+        let hasAnyPriceData = false; 
 
-    priceSubgroups.forEach((subgroup, subIterationIdx) => {
-        const subGroupIndex = subgroup.dataset.subGroupIndex;
-        if (subGroupIndex === undefined) {
-            allSubgroupsContent += `<tr><td style="color:red;">오류: 요금 소그룹 정보 누락</td></tr>`;
-            return;
-        }
-
-        const subgroupTitleInputElement = subgroup.querySelector(`input[name="price_subgroup_title[${groupIndex}][${subGroupIndex}]"]`); // name 속성 확인
-        let subgroupTitleValue = subgroupTitleInputElement ? subgroupTitleInputElement.value.trim() : ""; // 기본값은 빈 문자열
-
-        let priceTableContent = "";
-        let hasDataInThisSubgroup = false;
-        // ... (이하 요금 테이블 행 데이터 추출 및 생성 로직은 이전과 동일) ...
-        // ... (단, hasDataInThisSubgroup 조건문으로 감싸는 부분 수정 필요) ...
-         subgroup.querySelectorAll('.price-table-body tr').forEach(row => {
-             const titleEl = row.querySelector(`input[name="p_title[${groupIndex}][${subGroupIndex}][]"]`);
-             const perPriceEl = row.querySelector(`input[name="p_perprice[${groupIndex}][${subGroupIndex}][]"]`);
-             const numberEl = row.querySelector(`input[name="p_number[${groupIndex}][${subGroupIndex}][]"]`);
-
-             if ((titleEl && titleEl.value.trim()) || (perPriceEl && perPriceEl.value.trim()) || (numberEl && parseInt(numberEl.value) > 0)) {
-                 hasDataInThisSubgroup = true; // 이 소그룹에 데이터가 있음을 표시
-                 // ... (이하 행 데이터 HTML 생성은 동일)
-                 const title = titleEl ? titleEl.value : '';
-                 const perPrice = perPriceEl ? perPriceEl.value : '';
-                 const number = numberEl ? numberEl.value : '';
-                 const totalPriceEl = row.querySelector(`input[name="p_totalprice[${groupIndex}][${subGroupIndex}][]"]`); 
-                 const totalPrice = totalPriceEl ? totalPriceEl.value : '0';
-                 const bigoEl = row.querySelector(`input[name="p_bigo[${groupIndex}][${subGroupIndex}][]"]`); 
-                 const bigo = bigoEl ? bigoEl.value : '';
-                 
-                 const numericPerPrice = parseFloat(perPrice) || 0;
-                 const numericTotalPrice = parseFloat(totalPrice.replace(/,/g, '')) || 0;
-
-                 priceTableContent += `
-                     <tr>
-                         <td style="border-top:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-left:1px solid #d3d3d3; border-right:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3;">${title}</td>
-                         <td style="border-top:1px solid #d3d3d3;border-left:1px solid #d3d3d3;border-right:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;text-align:right;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px;">${numericPerPrice.toLocaleString()} 원</td>
-                         <td style="border-top:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-left:1px solid #d3d3d3; border-right:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3;">${number}</td>
-                         <td style="border-top:1px solid #d3d3d3;border-left:1px solid #d3d3d3;border-right:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;text-align:right;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px;">${numericTotalPrice.toLocaleString()} 원</td>
-                         <td style="border-top:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-left:none; border-right:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3; white-space: nowrap;">${bigo}</td>
-                     </tr>`;
-             }
-         });
-        
-        // 요금 소그룹 제목 또는 테이블 내용 중 하나라도 있어야 해당 소그룹을 그림
-        if (subgroupTitleValue.trim() || hasDataInThisSubgroup) {
-            hasAnyPriceData = true; // 전체 요금 안내 섹션을 그릴지 여부 판단
-            if (allSubgroupsContent.trim() !== "") {
-                allSubgroupsContent += `<tr><td style="padding-top: 15px;"><hr style="border: none; border-top: 1px dashed #ccc;"></td></tr>`;
+        priceSubgroups.forEach((subgroup, subIterationIdx) => {
+            const subGroupIndex = subgroup.dataset.subGroupIndex;
+            if (subGroupIndex === undefined) {
+                console.error("Price subgroup index missing for group:", groupIndex);
+                allSubgroupsContent += `<tr><td style="color:red;">오류: 요금 소그룹 정보 누락 (인덱스 오류)</td></tr>`;
+                return;
             }
-            // 소그룹 제목(견적설명)을 다시 표시
-            if (subgroupTitleValue.trim()) { 
-                 allSubgroupsContent += `<tr><td style="padding-top:10px; padding-bottom: 5px; font-weight:bold; font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:12px;" class="price-group-title">${subgroupTitleValue}</td></tr>`;
-            }
-            
-            // 테이블 내용이 있을 경우에만 테이블 구조 생성
-            if (hasDataInThisSubgroup) {
-                allSubgroupsContent += `<tr><td><table style="width:100%; text-align:center; border-collapse: collapse;" class="price-details-table"><thead><tr><th style="width:20%;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border:1px solid #d3d3d3;"><strong>내역</strong></th><th style="width:18%;border-right:1px solid #d3d3d3;border-left:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-top:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3;"><strong>금액</strong></th><th style="width:9%;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-top:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3; border-right:1px solid #d3d3d3;"><strong>인원</strong></th><th style="width:18%;border-right:1px solid #d3d3d3;border-left:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-top:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3;"><strong>총금액</strong></th><th style="width:35%;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border:1px solid #d3d3d3; border-left:none; white-space: nowrap;"><strong>비고</strong></th></tr></thead><tbody>${priceTableContent}`;
+
+            const subgroupTitleInputElement = subgroup.querySelector(`input[name="price_subgroup_title[${groupIndex}][${subGroupIndex}]"]`);
+            let subgroupTitleValue = subgroupTitleInputElement ? subgroupTitleInputElement.value.trim() : "";
+
+            let priceTableContent = "";
+            let hasDataInThisSubgroup = false;
+
+            subgroup.querySelectorAll('.price-table-body tr').forEach(row => {
+                const titleEl = row.querySelector(`input[name="p_title[${groupIndex}][${subGroupIndex}][]"]`);
+                const perPriceEl = row.querySelector(`input[name="p_perprice[${groupIndex}][${subGroupIndex}][]"]`);
+                const numberEl = row.querySelector(`input[name="p_number[${groupIndex}][${subGroupIndex}][]"]`);
                 
-                const grandTotalInput = subgroup.querySelector(`input[name="p_sumprice[${groupIndex}][${subGroupIndex}]"]`);
-                const grandTotalValue = grandTotalInput ? (parseFloat(grandTotalInput.value.replace(/,/g, '')) || 0) : 0;
+                if ((titleEl && titleEl.value.trim()) || 
+                    (perPriceEl && perPriceEl.value.trim() && parseFloat(perPriceEl.value) !== 0) || 
+                    (numberEl && parseInt(numberEl.value) > 0)) {
+                    hasDataInThisSubgroup = true;
+                    
+                    const title = titleEl ? titleEl.value : '';
+                    const perPrice = perPriceEl ? perPriceEl.value : '';
+                    const number = numberEl ? numberEl.value : '';
+                    const totalPriceEl = row.querySelector(`input[name="p_totalprice[${groupIndex}][${subGroupIndex}][]"]`); 
+                    const totalPrice = totalPriceEl ? totalPriceEl.value : '0'; 
+                    const bigoEl = row.querySelector(`input[name="p_bigo[${groupIndex}][${subGroupIndex}][]"]`); 
+                    const bigo = bigoEl ? bigoEl.value : '';
+                    
+                    const numericPerPrice = parseFloat(perPrice) || 0;
+                    const numericTotalPrice = parseFloat(totalPrice.replace(/,/g, '')) || 0;
 
-                allSubgroupsContent += `</tbody><tr style="background-color:#f8f8f8;"><td colspan="3" style="border:1px solid #d3d3d3; border-right:none; padding:6px 3px; text-align:right; font-weight:bold; font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px;">총 합계</td><td style="border:1px solid #d3d3d3; padding:6px 3px; text-align:right; font-weight:bold; font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px;">${grandTotalValue.toLocaleString()} 원</td><td style="border:1px solid #d3d3d3; border-left:none; padding:6px 3px;"></td></tr></table></td></tr>`;
-            } else if (subgroupTitleValue.trim()) { // 제목만 있고 테이블 내용이 없을 경우
-                 allSubgroupsContent += `<tr><td style="padding: 5px 0; font-size: 10px; color: #777;">(세부 요금 항목 없음)</td></tr>`;
+                    priceTableContent += `
+                        <tr>
+                            <td style="border-top:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-left:1px solid #d3d3d3; border-right:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3;">${title}</td>
+                            <td style="border-top:1px solid #d3d3d3;border-left:1px solid #d3d3d3;border-right:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;text-align:right;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px;">${numericPerPrice.toLocaleString()} 원</td>
+                            <td style="border-top:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-left:1px solid #d3d3d3; border-right:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3;">${number}</td>
+                            <td style="border-top:1px solid #d3d3d3;border-left:1px solid #d3d3d3;border-right:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;text-align:right;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px;">${numericTotalPrice.toLocaleString()} 원</td>
+                            <td style="border-top:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-left:none; border-right:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3; white-space: nowrap;">${bigo}</td>
+                        </tr>`;
+                }
+            });
+            
+            if (subgroupTitleValue.trim() || hasDataInThisSubgroup) {
+                hasAnyPriceData = true; 
+                if (allSubgroupsContent.trim() !== "" && subIterationIdx > 0) { 
+                    allSubgroupsContent += `<tr><td style="padding-top: 15px;"><hr style="border: none; border-top: 1px dashed #ccc;"></td></tr>`;
+                }
+                
+                if (subgroupTitleValue.trim()) { 
+                     allSubgroupsContent += `<tr><td style="padding-top:10px; padding-bottom: 5px; font-weight:bold; font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:12px;" class="price-group-title">${subgroupTitleValue}</td></tr>`;
+                }
+                
+                if (hasDataInThisSubgroup) {
+                    allSubgroupsContent += `<tr><td><table style="width:100%; text-align:center; border-collapse: collapse;" class="price-details-table"><thead><tr><th style="width:20%;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border:1px solid #d3d3d3;"><strong>내역</strong></th><th style="width:18%;border-right:1px solid #d3d3d3;border-left:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-top:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3;"><strong>금액</strong></th><th style="width:9%;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-top:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3; border-right:1px solid #d3d3d3;"><strong>인원</strong></th><th style="width:18%;border-right:1px solid #d3d3d3;border-left:1px solid #d3d3d3;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border-top:1px solid #d3d3d3; border-bottom:1px solid #d3d3d3;"><strong>총금액</strong></th><th style="width:35%;padding:6px 3px;color:#4f4f4f;font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px; border:1px solid #d3d3d3; border-left:none; white-space: nowrap;"><strong>비고</strong></th></tr></thead><tbody>${priceTableContent}`;
+                    
+                    const grandTotalInput = subgroup.querySelector(`input[name="p_sumprice[${groupIndex}][${subGroupIndex}]"]`);
+                    const grandTotalValue = grandTotalInput ? (parseFloat(grandTotalInput.value.replace(/,/g, '')) || 0) : 0;
+
+                    allSubgroupsContent += `</tbody><tr style="background-color:#f8f8f8;"><td colspan="3" style="border:1px solid #d3d3d3; border-right:none; padding:6px 3px; text-align:right; font-weight:bold; font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px;">총 합계</td><td style="border:1px solid #d3d3d3; padding:6px 3px; text-align:right; font-weight:bold; font-family:'맑은 고딕','Malgun Gothic','돋움',dotum,sans-serif;font-size:10px;">${grandTotalValue.toLocaleString()} 원</td><td style="border:1px solid #d3d3d3; border-left:none; padding:6px 3px;"></td></tr></table></td></tr>`;
+                } else if (subgroupTitleValue.trim()) { 
+                     allSubgroupsContent += `<tr><td style="padding: 5px 0; font-size: 10px; color: #777;">(세부 요금 항목 없음)</td></tr>`;
+                }
             }
-        }
-    });
+        });
 
-    if (!hasAnyPriceData) return ""; // 전체 요금 안내 섹션에 아무 내용도 없으면 그리지 않음
+        if (!hasAnyPriceData) return ""; 
 
-    // ... (이하 return 문은 이전과 동일)
-     return `
-         <tr>
-             <td style="padding-top:20px">
-                 <table style="width:100%;">
-                     <tbody>
-                         <tr>
-                             <td style="padding-bottom:7px">
-                                 <p style="font-size:14px;color:#ff7c00" class="section-title"><img src="https://www.naeiltour.co.kr/mail/reservation/images/icon_01.png" style="vertical-align: middle;"> <strong style="vertical-align: middle;">요금안내</strong></p>
-                             </td>
-                         </tr>
-                         <tr>
-                             <td style="border:1px solid #f37021; padding:10px;" class="section-content-box"> <table width="100%" style="border-spacing: 0; border-collapse: collapse;">
-                                 <tbody>
-                                     ${allSubgroupsContent}
-                                 </tbody>
-                                 </table>
-                             </td>
-                         </tr>
-                     </tbody>
-                 </table>
-             </td>
-         </tr>
-     `;
-}
+         return `
+             <tr>
+                 <td style="padding-top:20px">
+                     <table style="width:100%;">
+                         <tbody>
+                             <tr>
+                                 <td style="padding-bottom:7px">
+                                     <p style="font-size:14px;color:#ff7c00" class="section-title"><img src="https://www.naeiltour.co.kr/mail/reservation/images/icon_01.png" style="vertical-align: middle;"> <strong style="vertical-align: middle;">요금안내</strong></p>
+                                 </td>
+                             </tr>
+                             <tr>
+                                 <td style="border:1px solid #f37021; padding:10px;" class="section-content-box"> <table width="100%" style="border-spacing: 0; border-collapse: collapse;">
+                                     <tbody>
+                                         ${allSubgroupsContent}
+                                     </tbody>
+                                     </table>
+                                 </td>
+                             </tr>
+                         </tbody>
+                     </table>
+                 </td>
+             </tr>
+         `;
+    }
 
     function _generatePreviewInclusionsExclusionsHTML_ForQuoteGroup(quoteGroupElement, groupIndex, type) {
         const title = type === 'included' ? '포함사항' : '불포함사항';
         const icon = type === 'included' ? 'icon_06.png' : 'icon_07.png';
-        const radioName = type === 'included' ? `includedItemsInputType_${groupIndex}` : `excludedItemsInputType_${groupIndex}`;
-        const listId = type === 'included' ? `includedItemsList_${groupIndex}` : `excludedItemsList_${groupIndex}`;
-        const itemNameAttr = type === 'included' ? `add_item[${groupIndex}][]` : `min_item[${groupIndex}][]`;
         const textareaName = type === 'included' ? `included_items_textarea[${groupIndex}]` : `excluded_items_textarea[${groupIndex}]`;
 
         let contentHtml = "";
-        const inputTypeRadio = quoteGroupElement.querySelector(`input[name="${radioName}"]:checked`);
         let hasContent = false;
 
-        if (inputTypeRadio && inputTypeRadio.value === 'list') {
-            const items = Array.from(quoteGroupElement.querySelectorAll(`#${listId} input[name="${itemNameAttr}"]`))
-                                .map(item => item.value.trim()).filter(v => v);
-            if (items.length > 0) {
-                items.forEach(itemText => { contentHtml += `<div>● ${itemText}</div>`; });
-                hasContent = true;
-            }
-        } else {
-            const textarea = quoteGroupElement.querySelector(`textarea[name="${textareaName}"]`);
-            const text = textarea ? textarea.value.trim() : '';
-            if (text) {
-                contentHtml = `<div>${text.replace(/\n/g, '<br>')}</div>`;
-                hasContent = true;
-            }
+        const textarea = quoteGroupElement.querySelector(`textarea[name="${textareaName}"]`);
+        const text = textarea ? textarea.value.trim() : '';
+        if (text) {
+            contentHtml = `<div>${text.replace(/\n/g, '<br>')}</div>`;
+            hasContent = true;
         }
 
         if (!hasContent) return "";
@@ -1082,12 +993,13 @@ function duplicateQuoteGroup(sourceGroupElement) {
         if (flightSubgroups.length === 0) return "";
 
         let allSubgroupsContent = "";
-        let hasAnyFlightDataInGroup = false;
+        let hasAnyFlightDataInGroup = false; 
 
         flightSubgroups.forEach((subgroup, subIterationIdx) => { 
             const subGroupIndex = subgroup.dataset.subGroupIndex; 
             if (subGroupIndex === undefined) {
-                allSubgroupsContent += `<tr><td style="color:red;">오류: 항공 소그룹 정보 누락</td></tr>`;
+                console.error("Flight subgroup index missing for group:", groupIndex);
+                allSubgroupsContent += `<tr><td style="color:red;">오류: 항공 소그룹 정보 누락 (인덱스 오류)</td></tr>`;
                 return; 
             }
 
@@ -1096,19 +1008,20 @@ function duplicateQuoteGroup(sourceGroupElement) {
             
             let flightTableRowsHtml = "";
             const flightRowsInSubgroup = subgroup.querySelectorAll('.flight-table-body-subgroup tr');
-            let hasFlightDataInSubgroup = false;
+            let hasFlightDataInSubgroup = false; 
 
             flightRowsInSubgroup.forEach(row => {
                 const inputs = row.querySelectorAll('input.flight-schedule-input');
-                const flight = inputs[0]?.value || ''; const depDay = inputs[1]?.value || '';
-                const fromCity = inputs[2]?.value || ''; const depTime = inputs[3]?.value || '';
-                const arrDay = inputs[4]?.value || '';   const toCity = inputs[5]?.value || '';
-                const arrTime = inputs[6]?.value || '';
-                if (flight.trim() || depDay.trim() || fromCity.trim() || toCity.trim() || arrDay.trim() || depTime.trim() || arrTime.trim()) {
+                const flight = inputs[0]?.value.trim() || ''; const depDay = inputs[1]?.value.trim() || '';
+                const fromCity = inputs[2]?.value.trim() || ''; const depTime = inputs[3]?.value.trim() || '';
+                const arrDay = inputs[4]?.value.trim() || '';   const toCity = inputs[5]?.value.trim() || '';
+                const arrTime = inputs[6]?.value.trim() || '';
+                
+                if (flight || depDay || fromCity || depTime || arrDay || toCity || arrTime) {
                     hasFlightDataInSubgroup = true;
                     flightTableRowsHtml += `
                         <tr height="24" style="mso-height-source:userset;height:18.0pt; background:white; text-align:center; font-size:10px;">
-                            <td style="border:1px solid #EEECE1; padding: 4px 3px;">${flight} </td>
+                            <td style="border:1px solid #EEECE1; padding: 4px 3px;">${flight}</td>
                             <td style="border:1px solid #EEECE1; border-left:none; padding: 4px 3px;">${depDay}</td>
                             <td style="border:1px solid #EEECE1; border-left:none; padding: 4px 3px;">${fromCity}</td>
                             <td style="border:1px solid #EEECE1; border-left:none; padding: 4px 3px;">${depTime}</td>
@@ -1120,12 +1033,12 @@ function duplicateQuoteGroup(sourceGroupElement) {
                 }
             });
 
-            if (hasFlightDataInSubgroup) {
+            if (subgroupTitleValue || hasFlightDataInSubgroup) {
                 hasAnyFlightDataInGroup = true;
-                if (allSubgroupsContent.trim() !== "") {
+                if (allSubgroupsContent.trim() !== "" && subIterationIdx > 0) { 
                     allSubgroupsContent += `<tr><td style="padding-top: 15px;"><hr style="border: none; border-top: 1px dashed #ccc;"></td></tr>`;
                 }
-                 if (subgroupTitleValue) { // 항공사 이름(소그룹 제목)이 있을 때만 표시
+                 if (subgroupTitleValue) { 
                     allSubgroupsContent += `
                         <tr>
                             <td style="width:100%;padding:10px 0px 5px 0px;">
@@ -1134,10 +1047,12 @@ function duplicateQuoteGroup(sourceGroupElement) {
                         </tr>
                     `;
                 }
-                allSubgroupsContent += `
-                    <tr>
-                        <td>
-                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse; font-size:10px; border:1px solid #EEECE1;" class="flight-details-table"> <thead>
+                
+                if (hasFlightDataInSubgroup) {
+                    allSubgroupsContent += `
+                        <tr>
+                            <td>
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse; font-size:10px; border:1px solid #EEECE1;" class="flight-details-table"> <thead>
                                 <tr height="24" style="mso-height-source:userset;height:18.0pt; background:white; text-align:center; font-weight:700;">
                                     <th style="width:12%; border:1px solid #EEECE1; padding: 4px 3px;">편명</th>
                                     <th style="width:14%; border:1px solid #EEECE1; border-left:none; padding: 4px 3px;">출발일</th>
@@ -1154,16 +1069,17 @@ function duplicateQuoteGroup(sourceGroupElement) {
                             </table>
                         </td>
                     </tr>
-                `;
-                 allSubgroupsContent += `
                     <tr>
                         <td height="24" style="font-size:10px; text-align:left; border:1px solid #EEECE1; border-top:none; white-space:normal; height:18.0pt; padding: 4px 3px;" class="flight-remark">** 모든 항공시간은 현지 시각 기준입니다.</td>
                     </tr>
                 `;
+                } else if (subgroupTitleValue) { 
+                    allSubgroupsContent += `<tr><td style="padding: 5px 0; font-size: 10px; color: #777;">(세부 항공 스케줄 없음)</td></tr>`;
+                }
             }
         });
         
-        if (!hasAnyFlightDataInGroup) return "";
+        if (!hasAnyFlightDataInGroup) return ""; 
 
         return `
             <tr>
@@ -1192,7 +1108,8 @@ function duplicateQuoteGroup(sourceGroupElement) {
     
     function _generatePreviewItineraryHTML_ForQuoteGroup(quoteGroupElement, groupIndex) {
         const goodsScheduleDiv = quoteGroupElement.querySelector(`#goods_schedule_editable_${groupIndex}`);
-        const goodsScheduleHtml = goodsScheduleDiv ? goodsScheduleDiv.innerHTML.trim() : "";
+        const goodsScheduleHiddenTextarea = quoteGroupElement.querySelector(`#goods_schedule_hidden_${groupIndex}`);
+        const goodsScheduleHtml = goodsScheduleHiddenTextarea ? goodsScheduleHiddenTextarea.value.trim() : (goodsScheduleDiv ? goodsScheduleDiv.innerHTML.trim() : "");
         const goodsSchedulePlaceholder = goodsScheduleDiv ? goodsScheduleDiv.getAttribute('placeholder') : "";
 
         let itinerarySectionHTML = "";
@@ -1214,8 +1131,8 @@ function duplicateQuoteGroup(sourceGroupElement) {
 
             itineraryTableRows.forEach(row => {
                 const inputs = row.querySelectorAll('.itinerary-schedule-input');
-                const values = Array.from(inputs).map(input => input ? input.value : '');
-                if (values.some(val => val.trim())) {
+                const values = Array.from(inputs).map(input => input ? input.value.trim() : ''); 
+                if (values.some(val => val)) { 
                     hasSummaryData = true;
                     itineraryTableContent += `
                         <tr style="text-align:center; background:white; font-size:10px;">
@@ -1257,7 +1174,7 @@ function duplicateQuoteGroup(sourceGroupElement) {
             }
         }
         
-        if (!hasContent) return "";
+        if (!hasContent) return ""; 
 
         return `
             <tr>
@@ -1275,9 +1192,8 @@ function duplicateQuoteGroup(sourceGroupElement) {
         `;
     }
 
-    // --- 견적서 미리보기 함수 ---
     function previewQuote() {
-        syncAllContentEditablesToTextareas();
+        syncAllContentEditablesToTextareas(); 
         const form = document.form1;
         if (!form.custname.value.trim()) { alert('받는이를 입력해 주세요.'); form.custname.focus(); return; }
         if (!form.custmail.value.trim()) { alert('받는이 메일 주소를 입력해 주세요.'); form.custmail.focus(); return; }
@@ -1295,10 +1211,13 @@ function duplicateQuoteGroup(sourceGroupElement) {
 
         const quoteGroupElements = document.querySelectorAll('#quoteGroupsContainer .quote-group-section');
         quoteGroupElements.forEach((groupEl, index) => {
-            if (index > 0) {
+            // 구분선(hr)을 추가하는 로직 제거 또는 주석 처리
+            /*
+            if (index > 0) { 
                  mainContentHTML += `<tr><td style="padding-top: 30px; padding-bottom:10px;"><hr style="border:none; border-top: 3px double #999;"></td></tr>`;
             }
-            mainContentHTML += _generatePreviewForSingleQuoteGroupHTML_Template(groupEl, groupEl.dataset.groupIndex);
+            */
+            mainContentHTML += _generatePreviewForSingleQuoteGroupHTML_Template(groupEl, groupEl.dataset.groupIndex, index === 0);
         });
 
         let fullPreviewHTML = `
@@ -1308,11 +1227,11 @@ function duplicateQuoteGroup(sourceGroupElement) {
                     <tr>
                         <td style="padding: 0px; width:100%; border:1px solid #d2d2d2; background-color: #ffffff;">
                             <table style="width:100%; border-spacing: 0; border-collapse: collapse;">
-                                <tbody>
+                                <tbody> 
                                     <tr>
                                         <td style="padding:20px 15px 40px">
                                             <table style="width:100%; border-spacing: 0; border-collapse: collapse;">
-                                                <tbody>
+                                                <tbody> 
                                                     ${mainContentHTML}
                                                     ${_getPreviewTemplateFooterHTML()}
                                                 </tbody>
@@ -1325,13 +1244,37 @@ function duplicateQuoteGroup(sourceGroupElement) {
                     </tr>
                 </tbody>
             </table>
-            <map name="naeil_header"></map> <map name="naeil_footer"></map>
+            <map name="naeil_header" id="naeil_header"></map> <map name="naeil_footer" id="naeil_footer"></map>
         `;
         
         const mobileStyles = getMobileStylesForDownload();
+        const fontAwesomeLink = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css">';
+        const toggleScript = `
+            <script>
+                function togglePreviewGroupContent(contentId, iconId) {
+                    const contentElement = document.getElementById(contentId);
+                    const iconElement = document.getElementById(iconId);
+                    if (contentElement && iconElement) {
+                        if (contentElement.style.display === 'none') {
+                            contentElement.style.display = 'table-row-group';
+                            iconElement.classList.remove('fa-plus-square');
+                            iconElement.classList.add('fa-minus-square');
+                        } else {
+                            contentElement.style.display = 'none';
+                            iconElement.classList.remove('fa-minus-square');
+                            iconElement.classList.add('fa-plus-square');
+                        }
+                    }
+                }
+            <\/script>
+            <style>
+                .preview-toggle-icon { margin-left: 10px; font-size: 0.9em; color: #555; }
+            </style>
+        `;
+
         const previewWindow = window.open('', '_blank', 'width=840,height=800,scrollbars=yes,resizable=yes');
         if (previewWindow) {
-            previewWindow.document.write('<html><head><title>견적서 미리보기</title><meta name="viewport" content="width=device-width, initial-scale=1.0">' + mobileStyles + '</head><body style="margin:0; padding:20px; background-color: #f0f0f0;">');
+            previewWindow.document.write('<html><head><title>견적서 미리보기</title><meta name="viewport" content="width=device-width, initial-scale=1.0">' + fontAwesomeLink + mobileStyles + toggleScript + '</head><body style="margin:0; padding:20px; background-color: #f0f0f0;">');
             previewWindow.document.write(fullPreviewHTML);
             previewWindow.document.write('</body></html>');
             previewWindow.document.close();
@@ -1342,7 +1285,7 @@ function duplicateQuoteGroup(sourceGroupElement) {
     }
 
     function downloadGeneratedHTML() {
-        syncAllContentEditablesToTextareas();
+        syncAllContentEditablesToTextareas(); 
         const form = document.form1;
         if (!form.custname.value.trim()) { alert('받는이를 입력해 주세요.'); form.custname.focus(); return; }
         if (!form.custmail.value.trim()) { alert('받는이 메일 주소를 입력해 주세요.'); form.custmail.focus(); return; }
@@ -1360,10 +1303,28 @@ function duplicateQuoteGroup(sourceGroupElement) {
 
         const quoteGroupElements = document.querySelectorAll('#quoteGroupsContainer .quote-group-section');
         quoteGroupElements.forEach((groupEl, index) => {
+            // 구분선(hr)을 추가하는 로직 제거 또는 주석 처리
+            /*
              if (index > 0) {
                  mainContentHTML += `<tr><td style="padding-top: 30px; padding-bottom:10px;"><hr style="border:none; border-top: 3px double #999;"></td></tr>`;
             }
-            mainContentHTML += _generatePreviewForSingleQuoteGroupHTML_Template(groupEl, groupEl.dataset.groupIndex);
+            */
+            const groupTitleEl = groupEl.querySelector(`input[name="quote_group_title[${groupEl.dataset.groupIndex}]"]`);
+            const groupTitle = groupTitleEl ? groupTitleEl.value.trim() : `견적 ${parseInt(groupEl.dataset.groupIndex) + 1}`;
+            mainContentHTML += `
+                <tr>
+                    <td style="padding-top:25px; padding-bottom: 10px; font-weight:bold; font-size:16px; color:#1a6f2b; border-bottom: 2px solid #1a6f2b;" 
+                        class="quote-group-main-title">
+                        ${groupTitle}
+                    </td>
+                </tr>`;
+            mainContentHTML += `<tbody style="display: table-row-group;">`; 
+            mainContentHTML += _generatePreviewPriceSubgroupsHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex);
+            mainContentHTML += _generatePreviewInclusionsExclusionsHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex, 'included');
+            mainContentHTML += _generatePreviewInclusionsExclusionsHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex, 'excluded');
+            mainContentHTML += _generatePreviewFlightSubgroupsHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex);
+            mainContentHTML += _generatePreviewItineraryHTML_ForQuoteGroup(groupEl, groupEl.dataset.groupIndex);
+            mainContentHTML += `</tbody>`;
         });
 
         let fullPreviewHTML_forDownload = `
@@ -1374,6 +1335,7 @@ function duplicateQuoteGroup(sourceGroupElement) {
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>견적서 - ${form.goodnm.value || '내일투어'}</title>
                 ${getMobileStylesForDownload()}
+                 <style> .preview-toggle-icon { display: none; } </style>
             </head>
             <body style="margin:0; padding:0; background-color: #ffffff;">
                 <table style="width:710px; margin: 0 auto; border-spacing: 0; border-collapse: collapse;">
@@ -1399,7 +1361,7 @@ function duplicateQuoteGroup(sourceGroupElement) {
                         </tr>
                     </tbody>
                 </table>
-                <map name="naeil_header"></map> <map name="naeil_footer"></map>
+                <map name="naeil_header" id="naeil_header_dl"></map> <map name="naeil_footer" id="naeil_footer_dl"></map>
             </body>
             </html>
         `;
@@ -1450,7 +1412,7 @@ function duplicateQuoteGroup(sourceGroupElement) {
                     .footer-address {
                         font-size: 11px !important;
                     }
-                    .detailed-itinerary-text * { 
+                    .detailed-itinerary-text *, .detailed-itinerary-text p, .detailed-itinerary-text span, .detailed-itinerary-text div, .detailed-itinerary-text td, .detailed-itinerary-text th { 
                         font-size: 11px !important; 
                         line-height: 1.4 !important; 
                     }
@@ -1478,8 +1440,8 @@ function duplicateQuoteGroup(sourceGroupElement) {
                     .flight-remark 
                      {
                         font-size: 9px !important; 
-                        padding: 2px 1px !important; 
-                        word-break: break-word !important; 
+                        padding: 3px 2px !important; 
+                        word-break: break-all !important; 
                         white-space: normal !important; 
                     }
 
@@ -1489,7 +1451,8 @@ function duplicateQuoteGroup(sourceGroupElement) {
                         line-height: 1.4 !important;
                     }
                     .product-agent-info-table td[style*="width:100px"] {
-                        width: auto !important;
+                        width: auto !important; 
+                        min-width: 60px; 
                         padding-right: 5px !important;
                     }
                 }
