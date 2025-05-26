@@ -1494,9 +1494,13 @@
                     const htmlString = e.target.result;
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlString, "text/html");
-                    const embeddedDataElement = doc.getElementById('embeddedDetailedItineraryData');
+                    // MODIFIED ID HERE
+                    const embeddedDataElement = doc.getElementById('embeddedTripData'); 
                     if (embeddedDataElement && embeddedDataElement.textContent) { // ID 일치 확인
                         const loadedData = JSON.parse(embeddedDataElement.textContent);
+                        // 'loadedData' for 'embeddedTripData' might directly be the itinerary object {title: ..., days: ...}
+                        // or it could be nested if the source HTML structure is different.
+                        // Assuming 'loadedData' is the itinerary object itself based on the provided example.
                         if (loadedData && Array.isArray(loadedData.days)) { // Basic validation
                             
                             // 날짜 형식 검증 및 변환
@@ -1513,21 +1517,26 @@
                                     console.warn("Loaded HTML contained a day object without a date. Setting to today's date.");
                                     day.date = dateToYyyyMmDd(new Date()); // 날짜가 아예 없는 경우 기본값
                                 }
-
                                 if (typeof day.isCollapsed === 'undefined') day.isCollapsed = false;
                                 if (typeof day.editingDate === 'undefined') day.editingDate = false;
                                 day.activities.forEach(act => { if(!act.id) act.id = generateId(); }); // Ensure IDs
                             });
 
+                            // Ensure the main structure has a title.
+                            if (typeof loadedData.title === 'undefined') {
+                                loadedData.title = "여행 일정표"; // Default title if missing
+                            }
+
                             quoteGroupDataStore[groupIndex].detailedItinerary = loadedData;
+                            
                              if (typeof quoteGroupDataStore[groupIndex].detailedItinerary.title === 'undefined') {
                                 quoteGroupDataStore[groupIndex].detailedItinerary.title = "여행 일정표";
                             }
                             document.querySelector(`input[name="detailed_itinerary_title[${groupIndex}]"]`).value = quoteGroupDataStore[groupIndex].detailedItinerary.title;
                             renderDetailedItineraryForGroup(groupIndex);
                             showToast('HTML 파일에서 상세 일정을 불러왔습니다.');
-                        } else { throw new Error('유효하지 않은 데이터 형식입니다.'); }
-                    } else { throw new Error('HTML 파일에서 상세 일정 데이터를 찾을 수 없습니다.'); }
+                        } else { throw new Error('유효하지 않은 데이터 형식입니다 (days 배열 누락).'); }
+                    } else { throw new Error('HTML 파일에서 상세 일정 데이터(ID: embeddedTripData)를 찾을 수 없습니다.'); }
                 } catch (err) { console.error("HTML 불러오기 오류:", err); showToast(`오류: ${err.message}`, 3000, true); }
             };
             reader.onerror = () => { showToast('파일을 읽는 중 오류가 발생했습니다.', 3000, true); console.error("File reading error for HTML itinerary."); };
@@ -1634,7 +1643,8 @@
                     const htmlString = e.target.result;
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlString, "text/html");
-                    const embeddedDataElement = doc.getElementById('embeddedDetailedDayData_v1'); // ID 확인
+                    // MODIFIED ID HERE
+                    const embeddedDataElement = doc.getElementById('embeddedTripDayData'); 
                     if (embeddedDataElement && embeddedDataElement.textContent) {
                         const loadedDayData = JSON.parse(embeddedDataElement.textContent);
                         if (loadedDayData && loadedDayData.activities !== undefined) { // 날짜 존재 여부는 선택적일 수 있음
@@ -1643,36 +1653,50 @@
                             if (loadedDayData.date) {
                                 const validatedLoadedDate = parseAndFormatDateInput(String(loadedDayData.date));
                                 if (validatedLoadedDate && isValidYyyyMmDd(validatedLoadedDate)) {
-                                    finalDate = validatedLoadedDate;// In handleLoadDetailedDayFromHtml in 견적2.html
-                                    // ...
-                                    const embeddedDataElement = doc.getElementById('embeddedDetailedDayData_v1'); // ID 확인
-                                    if (embeddedDataElement && embeddedDataElement.textContent) {
-                                        // ... process data ...
-                                    } else { 
-                                        throw new Error('HTML 파일에서 날짜 데이터를 찾을 수 없습니다.'); // This error is thrown
-                                    }
-                                    // ...
-                                    
+                                    finalDate = validatedLoadedDate;
                                 } else {
-                                    showToast(`불러온 날짜 형식이 올바르지 않아 (${loadedDayData.date}), 오늘 날짜로 설정합니다.`, 4000, true);
+                                    showToast(`불러온 날짜 형식이 올바르지 않아 (${loadedDayData.date}), 현재 날짜로 설정합니다.`, 4000, true);
+                                    // Attempt to use the existing date of the day being overwritten if valid
+                                    const existingDay = quoteGroupDataStore[groupIndex].detailedItinerary.days[dayIndexToOverwrite];
+                                    if (existingDay && existingDay.date && isValidYyyyMmDd(existingDay.date)) {
+                                        finalDate = existingDay.date;
+                                        showToast(`덮어쓰는 날짜의 기존 날짜(${finalDate})를 사용합니다.`, 4000);
+                                    } else {
+                                         finalDate = dateToYyyyMmDd(new Date()); // Fallback to today
+                                         showToast(`기존 날짜도 유효하지 않아, 오늘 날짜(${finalDate})로 설정합니다.`, 4000, true);
+                                    }
                                 }
                             } else {
                                  showToast(`불러온 데이터에 날짜 정보가 없어, 오늘 날짜로 설정합니다.`, 4000, true);
+                                 const existingDay = quoteGroupDataStore[groupIndex].detailedItinerary.days[dayIndexToOverwrite];
+                                 if (existingDay && existingDay.date && isValidYyyyMmDd(existingDay.date)) {
+                                     finalDate = existingDay.date;
+                                     showToast(`덮어쓰는 날짜의 기존 날짜(${finalDate})를 사용합니다.`, 4000);
+                                 } else {
+                                      finalDate = dateToYyyyMmDd(new Date()); // Fallback to today
+                                      showToast(`기존 날짜도 유효하지 않아, 오늘 날짜(${finalDate})로 설정합니다.`, 4000, true);
+                                 }
                             }
                             loadedDayData.date = finalDate; // 최종 날짜 설정
 
                             loadedDayData.activities.forEach(act => { if(!act.id) act.id = generateId(); });
                             
+                            // Ensure the day being overwritten exists
+                            if (!quoteGroupDataStore[groupIndex].detailedItinerary.days[dayIndexToOverwrite]) {
+                                quoteGroupDataStore[groupIndex].detailedItinerary.days[dayIndexToOverwrite] = {}; // Create if not exists
+                            }
+
                             quoteGroupDataStore[groupIndex].detailedItinerary.days[dayIndexToOverwrite] = {
-                                ...loadedDayData, // date도 여기서 덮어쓰여짐
-                                isCollapsed: false, 
-                                editingDate: false
+                                ...quoteGroupDataStore[groupIndex].detailedItinerary.days[dayIndexToOverwrite], // Preserve other potential props
+                                ...loadedDayData, // date and activities will be overwritten
+                                isCollapsed: loadedDayData.isCollapsed !== undefined ? loadedDayData.isCollapsed : false, 
+                                editingDate: false // Always reset editing state
                             };
                             recalculateAllDetailedDates(groupIndex, dayIndexToOverwrite); // Recalculate if date changed
                             renderDetailedItineraryForGroup(groupIndex);
                             showToast(`DAY ${dayIndexToOverwrite + 1} 일정을 불러온 내용으로 덮어썼습니다.`);
-                        } else { throw new Error('유효하지 않은 날짜 데이터 형식입니다.'); }
-                    } else { throw new Error('HTML 파일에서 날짜 데이터를 찾을 수 없습니다.'); }
+                        } else { throw new Error('유효하지 않은 날짜 데이터 형식입니다 (activities 누락).'); }
+                    } else { throw new Error('HTML 파일에서 날짜 데이터(ID: embeddedTripDayData)를 찾을 수 없습니다.'); }
                 } catch (err) { console.error("날짜 HTML 덮어쓰기 오류:", err); showToast(`오류: ${err.message}`, 3000, true); }
             };
             reader.onerror = () => { showToast('파일을 읽는 중 오류가 발생했습니다.', 3000, true); console.error("File reading error for day HTML."); };
