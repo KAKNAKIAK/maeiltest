@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>모바일 견적서_0526_2</title>
+    <title>모바일 견적서_0526_3</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -185,6 +185,8 @@
         }
         .itinerary-planner-styles .day-content-wrapper { /* 상세 일정표 - 날짜 내용 래퍼 */
             padding: 0 8px 8px 8px;
+            /* 디버깅용 스타일: 테두리 추가 */
+            /* border: 2px solid blue; */
         }
         .itinerary-planner-styles .activity-card { /* 상세 일정표 - 활동 카드 */
             background-color: white;
@@ -642,6 +644,7 @@
                     `;
                 }
 
+                // 디버깅을 위해 day-content-wrapper와 버튼에 임시 스타일 추가
                 daySection.innerHTML = `
                     <div class="day-header-container">
                         <div class="day-header-main">
@@ -656,11 +659,11 @@
                             </button>
                         </div>
                     </div>
-                    <div class="day-content-wrapper ${day.isCollapsed ? 'hidden' : ''}">
-                        <div class="activities-list activities-list-group-${groupIndex}-day-${dayIdx} pt-3" data-group-index="${groupIndex}" data-day-index="${dayIdx}">
+                    <div class="day-content-wrapper ${day.isCollapsed ? 'hidden' : ''}" style="border: 2px solid red; padding: 10px; background-color: #ffeeee;">
+                        <div class="activities-list activities-list-group-${groupIndex}-day-${dayIdx} pt-3" data-group-index="${groupIndex}" data-day-index="${dayIdx}" style="border: 1px dashed green; min-height: 20px;">
                             </div>
-                        <button class="add-activity-to-day-button mt-3 mb-2 action-button-sm bg-teal-500 text-white hover:bg-teal-600 itinerary-planner-styles" data-group-index="${groupIndex}" data-day-index="${dayIdx}">
-                            <i class="fas fa-plus"></i> 이 날짜에 새 일정 추가
+                        <button class="add-activity-to-day-button mt-3 mb-2 action-button-sm bg-teal-500 text-white hover:bg-teal-600 itinerary-planner-styles" data-group-index="${groupIndex}" data-day-index="${dayIdx}" style="border: 2px solid purple; background-color: #ccffcc !important; color: black !important;">
+                            <i class="fas fa-plus"></i> 이 날짜에 새 일정 추가 (디버그)
                         </button>
                     </div>
                 `;
@@ -727,7 +730,7 @@
             daysArray.push({
                 date: dateToYyyyMmDd(newDate),
                 activities: [],
-                isCollapsed: false, // <<-- 수정된 부분: 기본값을 펼침(false)으로 변경
+                isCollapsed: false, // 기본값을 펼침(false)으로 변경
                 editingDate: false
             });
             renderDetailedItineraryForGroup(groupIndex); // 변경된 내용으로 다시 렌더링
