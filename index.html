@@ -362,6 +362,82 @@
         }
 
 
+        /* --- Mobile Preview Adjustments --- */
+        @media (max-width: 767px) {
+            body.preview-mode {
+                padding: 0.25rem; /* Minimal padding on the body for wider content */
+                font-size: 13px;  /* Base font size for mobile preview, adjust if too small/large */
+                -webkit-text-size-adjust: 100%; /* Prevent iOS font scaling */
+                text-size-adjust: 100%;         /* Prevent font scaling */
+            }
+            .preview-mode .preview-container {
+                padding: 0.5rem;  /* Reduced padding inside the main content container */
+                margin: 0;
+                width: 100%;      /* Make container take full available width */
+                max-width: 100%;  /* Override desktop max-width */
+                border-radius: 0; /* Optional: for a more edge-to-edge feel on mobile */
+                box-shadow: none; /* Optional: remove shadow for cleaner mobile look */
+            }
+
+            /* Font size adjustments for general preview elements */
+            .preview-mode .preview-container > header h1 { /* Target the main 견적서 title */
+                font-size: 1.5em; /* Approx 19.5px based on 13px body font */
+            }
+            .preview-mode .preview-section-title {
+                font-size: 1.15em; /* Approx 15px */
+                padding: 0.3em 0.4em;
+                margin-bottom: 0.6em;
+            }
+            .preview-mode .preview-group-title {
+                font-size: 1.1em;  /* Approx 14.3px */
+                padding: 0.3em 0.4em;
+                margin-bottom: 0.5em;
+            }
+            .preview-mode .preview-sub-group-title {
+                font-size: 1.05em; /* Approx 13.65px */
+                padding: 0.25em 0.4em;
+                margin-bottom: 0.4em;
+            }
+            
+            .preview-mode .preview-table {
+                font-size: 12px; /* Specific small size for tables */
+            }
+            .preview-mode .preview-table th, .preview-mode .preview-table td {
+                padding: 0.2em 0.25em; /* Reduced padding in table cells */
+            }
+            
+            .preview-mode .preview-textarea-content {
+                font-size: 0.95em; /* Approx 12.35px */
+                padding: 0.25em;
+                min-height: 30px; /* Smaller min-height for textareas */
+            }
+            .preview-mode p, .preview-mode .bg-gray-50 p { /* General paragraphs */
+                font-size: 0.95em; /* Approx 12.35px */
+                margin-bottom: 0.3em;
+                line-height: 1.4;
+            }
+             .preview-mode .bg-gray-50 div > p { /* For basic info and contact */
+                margin-bottom: 0.3em;
+            }
+
+
+            /* Detailed Itinerary specific adjustments for preview on mobile */
+            /* Using !important to ensure override of other .saved-html-view styles if necessary */
+            .preview-mode .readonly-view-header h1 { font-size: 1.2em !important; /* Approx 15.6px */ }
+            .preview-mode .day-header-container { padding: 0.4rem 0.3rem !important; /* Reduced padding */ }
+            .preview-mode .day-header-title { font-size: 1.05em !important; /* Approx 13.65px */ }
+            .preview-mode .readonly-activity-card, .preview-mode .itinerary-planner-styles .activity-card { padding: 0.4rem !important; margin-bottom: 0.5rem !important; }
+            .preview-mode .card-time-icon-area { width: 45px !important; /* Further reduced width for time/icon area */ font-size: 0.9em !important; /* For text inside this area, if any */ }
+            .preview-mode .card-icon { font-size: 1.15em !important; /* Approx 15px icon */ margin-bottom: 2px !important; }
+            .preview-mode .card-time { font-size: 0.85em !important; /* Approx 11px, check for readability */ font-weight: 500 !important; min-height: auto !important; }
+            .preview-mode .card-details-area { font-size: 0.92em !important; /* Base for descriptions etc. ~12px */ }
+            .preview-mode .card-title { font-size: 1em !important;    /* Approx 13px (relative to card-details-area if nested, or body if not) */ font-weight: 600 !important; margin-bottom: 0.2em !important; }
+            .preview-mode .card-description, .preview-mode .card-location, .preview-mode .card-cost, .preview-mode .card-notes { font-size: 1em !important; /* Relative to card-details-area's font-size (0.92em of body) */ line-height: 1.35 !important; margin-top: 0.15em; }
+            .preview-mode .card-location a { font-size: 1em !important; /* Inherit from .card-location */ }
+            .preview-mode .day-toggle-button-static svg { width: 0.875em !important; height: 0.875em !important; }
+            .preview-mode .readonly-collapse-button { font-size: 0.85em !important; /* Approx 11px */ padding: 0.15em 0.3em !important; }
+        }
+
         /* Print and Saved HTML View Styles */
         @media print, .saved-html-view {
             .group-action-buttons, .add-price-subgroup-button, .add-flight-subgroup-button, .add-itinerary-row-to-group,
