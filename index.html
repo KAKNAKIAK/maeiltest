@@ -627,7 +627,7 @@
         /* Styles for preview window (탭 적용으로 일부 수정) */
         .preview-mode { padding: 1rem; background-color: #f0f0f0; }
         .preview-container { max-width: 950px; margin: 0 auto; background-color: white; padding: 1.5rem; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; }
-        .preview-section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; padding: 0.5rem; background-color: #e0f2f7; color: #000; border-radius: 4px; }
+        .preview-section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; padding: 0.5rem; background-color: transparent; color: #000; border-radius: 4px; }
         .preview-sub-group-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; padding: 0.25rem; background-color: #f9f9f9; border-left: 3px solid #4A90E2; }
         .preview-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.875rem; }
         .preview-table th, .preview-table td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
@@ -1974,7 +1974,7 @@
                 .preview-image-header img { max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto; }
                 .preview-image-header img.new_header_style { margin-bottom: 10px; } /* 필요시 이미지 간 간격 조정 */
                 /* ------------------------------ */
-                .preview-section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; padding: 0.5rem; background-color: #e0f2f7; color: #000; border-radius: 4px; }
+                .preview-section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; padding: 0.5rem; background-color: transparent; color: #000; border-radius: 4px; }
                 .preview-sub-group-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; padding: 0.25rem; background-color: #f9f9f9; border-left: 3px solid #4A90E2; }
                 .preview-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.875rem; }
                 .preview-table th, .preview-table td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
@@ -2050,7 +2050,7 @@
             previewHTML += `</div></section>`;
 
             // 2. Traveler Info
-            previewHTML += `<section class="mb-8"><h2 class="preview-section-title">예약자 정보</h2><div class="bg-gray-50 p-4 rounded">`;
+            previewHTML += `<section class="mb-8"><h2 class="preview-section-title">예약자 정보</h2><div class=" p-4 rounded">`;
             previewHTML += `<div class="preview-textarea-content">${document.getElementById('travelerInfoText').value.replace(/\n/g, '<br>') || 'N/A'}</div>`;
             previewHTML += `</div></section>`;
 
