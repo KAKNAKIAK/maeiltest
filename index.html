@@ -415,7 +415,7 @@
         @media (max-width: 767px) {
             body.preview-mode {
                 padding: 0.25rem; /* Minimal padding on the body for wider content */
-                font-size: 11px;  /* Base font size for mobile preview, adjust if too small/large */
+                font-size: 9px;  /* Base font size for mobile preview, adjust if too small/large */
                 -webkit-text-size-adjust: 100%; /* Prevent iOS font scaling */
                 text-size-adjust: 100%;         /* Prevent font scaling */
             }
@@ -449,7 +449,7 @@
             }
             
             .preview-mode .preview-table {
-                font-size: 10px; /* Specific small size for tables */
+                font-size: 8.5px; /* Specific small size for tables */
             }
             .preview-mode .preview-table th, .preview-mode .preview-table td {
                 padding: 0.2em 0.25em; /* Reduced padding in table cells */
@@ -485,7 +485,8 @@
             
             .preview-mode .preview-group-wrapper {
                 /* 모바일에서는 패딩을 더 줄이고 싶다면 여기에 추가적인 padding 값을 지정할 수 있습니다. */
-                 padding: 0.5rem !important; /* 패딩 약간 더 줄임 */
+                 /* padding: 0.3rem !important; /* 패딩 약간 더 줄임 */
+                 padding: 0.1rem !important; /* 패딩을 더 줄여서 그룹 내부의 가용 너비를 늘림 */
             }
         }
 
@@ -650,10 +651,11 @@
             border-width: 2px !important; /* 편집기와 동일하게 유지 */
             border-style: solid !important;
             border-color: transparent !important; /* 테두리 색상을 투명하게 */
-            padding: 1.5rem !important; /* 편집기 패널과 유사하게 */
+            padding: 0.1rem !important; /* 편집기 패널과 유사하게 */
             margin-left: 0; 
             margin-right: 0;
             margin-bottom: 1rem !important;
+            
         }
         .preview-mode .preview-sub-group-title {
             border-left: none !important;
