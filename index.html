@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>모바일 견적서_0527_1</title>
+    <title>모바일 견적서_0528_1</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
@@ -25,15 +26,62 @@
         .w-3\/10 { width: 34%; } /* 너비 34% */
         .w-4\/10 { width: 40%; } /* 너비 40% */
 
+        /* 탭 인터페이스 스타일 */
+        #quoteTabButtonsContainer {
+            /* 필요시 스크롤 가능하도록 설정 가능: overflow-x: auto; */
+        }
+        .quote-tab-button {
+            padding: 0.4rem 0.8rem; /* 패딩 약간 줄임 */
+            margin-right: 0.25rem;
+            margin-bottom: -1px; /* 하단 테두리가 컨테이너의 테두리와 겹치도록 */
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            border-bottom: none;
+            border-radius: 0.375rem 0.375rem 0 0; /* rounded-t-md */
+            background-color: #f9fafb; /* Tailwind gray-50 */
+            font-size: 0.8rem; /* 폰트 약간 줄임 */
+            color: #374151; /* Tailwind gray-700 */
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 180px; /* 탭 최대 너비, 필요시 조정 */
+            display: inline-flex;
+            align-items: center;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+        }
+        .quote-tab-button:hover {
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+        }
+        .quote-tab-button.active {
+            background-color: #ffffff; /* white */
+            border-color: #d1d5db #d1d5db #ffffff; /* 활성 탭 하단 테두리 숨김 */
+            font-weight: 500; /* 기존 bold(700)에서 약간 낮춤 */
+            color: #007bff; /* Bootstrap primary color 느낌으로 변경 또는 브랜드 색상 */
+            position: relative;
+            z-index: 1;
+        }
+        .quote-tab-button .tab-title {
+             max-width: 130px; /* 제목 자체의 최대 너비 */
+             overflow: hidden;
+             text-overflow: ellipsis;
+             white-space: nowrap;
+             display: inline-block; /* ellipsis 적용을 위해 */
+        }
+
         .quote-group-section { /* 견적 그룹 섹션 스타일 */
+            display: none; /* 기본적으로 숨김 */
             border-width: 2px;
             border-style: solid;
             padding: 1.5rem;
             margin-bottom: 2rem;
-            border-radius: 8px;
+            border-radius: 0 0 8px 8px; /* 상단 모서리 둥글림 제거, 하단 유지 */
             background-color: #f9f9f9;
             position: relative;
             padding-top: 4rem; /* 그룹 액션 버튼 공간 확보 */
+            border-top: 1px solid #d1d5db; /* 패널 상단 테두리 추가 (탭 컨테이너의 border-b와 연결) */
+        }
+        .quote-group-section.active {
+            display: block; /* 활성 패널만 보임 */
         }
 
         .group-action-buttons { /* 그룹 액션 버튼 컨테이너 */
@@ -95,6 +143,21 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             width: 100%;
+        }
+        .tab-delete-icon {
+            margin-left: 0.5rem;
+            color: #9ca3af; /* gray-400 */
+            font-size: 0.7rem; /* 아이콘 크기 약간 줄임 */
+            padding: 2px;
+        }
+        .tab-delete-icon:hover {
+            color: #ef4444; /* red-500 */
+            background-color: #fee2e2; /* red-100 on hover */
+            border-radius: 50%;
+        }
+        #addGlobalQuoteGroupBtn {
+            padding: 0.3rem 0.6rem; /* 패딩 조정 */
+            box-shadow: none;
         }
 
         /* --- 상세 일정표 UI 스타일 --- */
@@ -307,10 +370,10 @@
             font-weight: bold;
         }
         .readonly-main-content {
-            max-width: 48rem; /* max-w-3xl */
+            max-width: 60rem; /* max-w-3xl */
             margin-left: auto;
             margin-right: auto;
-            padding: 1rem; /* p-4 */
+            padding: 0.3rem; /* p-4 */
         }
         .readonly-activity-card {
             background-color: white;
@@ -361,12 +424,11 @@
             cursor: grabbing;
         }
 
-
         /* --- Mobile Preview Adjustments --- */
         @media (max-width: 767px) {
             body.preview-mode {
                 padding: 0.25rem; /* Minimal padding on the body for wider content */
-                font-size: 13px;  /* Base font size for mobile preview, adjust if too small/large */
+                font-size: 11px;  /* Base font size for mobile preview, adjust if too small/large */
                 -webkit-text-size-adjust: 100%; /* Prevent iOS font scaling */
                 text-size-adjust: 100%;         /* Prevent font scaling */
             }
@@ -400,7 +462,7 @@
             }
             
             .preview-mode .preview-table {
-                font-size: 12px; /* Specific small size for tables */
+                font-size: 10px; /* Specific small size for tables */
             }
             .preview-mode .preview-table th, .preview-mode .preview-table td {
                 padding: 0.2em 0.25em; /* Reduced padding in table cells */
@@ -436,6 +498,11 @@
             .preview-mode .card-location a { font-size: 1em !important; /* Inherit from .card-location */ }
             .preview-mode .day-toggle-button-static svg { width: 0.875em !important; height: 0.875em !important; }
             .preview-mode .readonly-collapse-button { font-size: 0.85em !important; /* Approx 11px */ padding: 0.15em 0.3em !important; }
+            
+            .preview-mode .preview-group-wrapper {
+                /* 모바일에서는 패딩을 더 줄이고 싶다면 여기에 추가적인 padding 값을 지정할 수 있습니다. */
+                /* 예: padding: 0.5rem !important; */
+            }
         }
 
         /* Print and Saved HTML View Styles */
@@ -460,14 +527,14 @@
             .itinerary-planner-styles .toggle-detailed-day-collapse-button /* 편집 모드 토글 버튼 숨김 */
             { display: none !important; }
 
-            body, .container, .quote-group-section {
+            body, .container, .quote-group-section:not(.preview-group-wrapper) { /* preview-group-wrapper는 별도 관리 */
                 box-shadow: none !important;
                 border: none !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 max-width: 100% !important;
             }
-            .quote-group-section { padding-top: 1rem !important; }
+            .quote-group-section:not(.preview-group-wrapper) { padding-top: 1rem !important; }
             .itinerary-planner-styles .day-section { margin-bottom: 10mm; page-break-inside: avoid; box-shadow: none; border: 1px solid #eee;}
 
             /* 이미지 기본 스타일 (JS 인라인이 우선 적용되므로, 여기선 여백, 배경색 등만) */
@@ -579,12 +646,39 @@
         .preview-table td.text-center { text-align: center; }
         .preview-textarea-content { white-space: pre-wrap; padding: 0.5rem; border: 1px solid #eee; background-color: #fdfdfd; border-radius: 4px; min-height: 50px; }
         .preview-detailed-itinerary-title { font-size: 1.1rem; font-weight: bold; margin-bottom: 0.5rem; padding: 0.5rem; background-color: #e1e1e1; color: #000; border-radius: 4px; }
-        /* 
-        .preview-mode .itinerary-planner-styles .card-image {
-             이 규칙은 @media print, .saved-html-view 블록의 스타일로 통합되었으므로 주석 처리합니다.
-             body 태그에 .preview-mode와 .saved-html-view 클래스가 함께 적용되기 때문입니다.
+        
+        /* 견적 그룹 테두리 및 소그룹 제목 왼쪽 선 제거 (미리보기용) */
+        .preview-mode .preview-group-wrapper {
+            border: none !important;
+            /* padding: 1.5rem !important; */ /* 이전 값, 아래에서 재조정 가능성 */
+            /* margin-bottom: 2rem !important; */ /* 이전 값, 유지 또는 재조정 가능성 */
+            background-color: transparent  !important; 
+            border-radius: 8px !important;
+
+            /* === 너비 및 여백 통일을 위한 수정 === */
+            width: 100%; /* 부모 요소(.preview-container 내부의 흐름)에 꽉 차도록 설정 */
+            max-width: none; /* 혹시 설정되어 있을 수 있는 최대 너비 제한 해제 */
+            box-sizing: border-box; /* 패딩과 테두리를 너비 계산에 포함 */
+            
+            /* "예약자 정보" 영역과 동일한 시각적 여백을 만들기 위해 패딩을 조정합니다.
+               "예약자 정보"의 <div class="bg-gray-50 p-4 rounded"> 를 보면 p-4 (1rem) 패딩이 있습니다.
+               .preview-group-wrapper 에도 동일하게 1rem 패딩을 적용하거나,
+               편집기의 .quote-group-section (padding: 1.5rem) 과 맞추려면 1.5rem을 적용합니다.
+               현재 "예약자 정보"의 흰색 박스가 p-4로 되어 있으므로,
+               그 바깥을 감싸는 preview-group-wrapper도 비슷한 내부 여백을 가지려면
+               padding 값이 중요합니다.
+            */
+            padding: 0.3rem !important; /* "예약자 정보"의 bg-gray-50 내부 패딩과 유사하게 맞춤.
+                                         만약 편집기(.quote-group-section)의 1.5rem과 맞추려면 1.5rem으로 변경 */
+            margin-left: 0; /* 중앙 정렬이 아닌, 부모 너비에 꽉 차게 */
+            margin-right: 0;
+            margin-bottom: 2rem !important; /* 기존 하단 마진 유지 */
         }
-        */
+        .preview-mode .preview-sub-group-title {
+            border-left: none !important;
+            max-width: 100%; 
+        }
+
 
     </style>
 </head>
@@ -633,14 +727,24 @@
             </div>
         </section>
 
-        <div id="quoteGroupsContainer" class="mb-8">
-            </div>
+        <!-- 탭 인터페이스를 위한 HTML 구조 -->
+        <div id="quoteTabButtonsContainer" class="flex flex-wrap border-b border-gray-300 mb-1 items-center sticky top-0 bg-white z-10 py-1 px-2 -mx-2">
+            <!-- 탭 버튼들이 동적으로 여기에 추가됩니다. -->
+            <button type="button" id="addGlobalQuoteGroupBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-3 rounded-md shadow-sm transition duration-150 ease-in-out text-xs ml-auto my-1 order-last">
+                <i class="fas fa-plus mr-1"></i>새 그룹
+            </button>
+        </div>
 
-        <div class="text-center mb-8 py-4 border-t border-b border-gray-200">
+        <div id="quoteGroupsContainer" class="mb-8 relative">
+            <!-- 견적 그룹 패널들이 여기에 동적으로 추가됩니다. -->
+        </div>
+
+        <!-- 기존 "새 견적 그룹 추가" 버튼이 있던 div는 제거하거나 주석 처리합니다. -->
+        <!-- <div class="text-center mb-8 py-4 border-t border-b border-gray-200">
             <button type="button" id="addGlobalQuoteGroupBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-md shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 text-sm">
                 <i class="fas fa-plus mr-2"></i>새 견적 그룹 추가
             </button>
-        </div>
+        </div> -->
 
         <section class="mb-8">
             <h2 class="text-xl font-semibold mb-4 p-2 rounded" style="background-color: #e0f2f7; color: #000;">담당자 정보</h2>
@@ -718,6 +822,7 @@
         // ----- 전역 변수 및 초기화 함수 -----
         let quoteGroupCounter = 0;
         let quoteGroupDataStore = {};
+        let activeGroupIndex = -1; // 현재 활성화된 탭의 인덱스
 
         const travelEmojis = [
             { value: "", display: "아이콘 없음" }, { value: "✈️", display: "✈️ 항공" }, { value: "🏨", display: "🏨 숙소" }, { value: "🍽️", display: "🍽️ 식사" }, { value: "🏛️", display: "🏛️ 관광(실내)" }, { value: "🏞️", display: "🏞️ 관광(야외)" }, { value: "🚶", display: "🚶 이동(도보)" }, { value: "🚌", display: "🚌 이동(버스)" }, { value: "🚆", display: "🚆 이동(기차)" }, { value: "🚢", display: "🚢 이동(배)" }, { value: "🚕", display: "🚕 이동(택시)" }, { value: "🛍️", display: "🛍️ 쇼핑" }, { value: "📷", display: "📷 사진촬영" }, { value: "🗺️", display: "🗺️ 계획/지도" }, { value: "📌", display: "📌 중요장소" }, { value: "☕", display: "☕ 카페/휴식" }, { value: "🎭", display: "🎭 공연/문화" }, { value: "💼", display: "💼 업무" }, { value: "ℹ️", display: "ℹ️ 정보" }
@@ -785,10 +890,101 @@
         const quoteGroupBorderColors = ['#4A90E2', '#50E3C2', '#F5A623', '#BD10E0', '#7ED321', '#D0021B', '#417505', '#9013FE'];
         let currentBorderColorIndex = 0;
 
-        function createQuoteGroup(groupIndex, afterElement = null, sourceGroupData = null) {
+        // --- 탭 관련 함수 ---
+        function activateTab(groupIndexToActivate) {
+            // 모든 탭 버튼 비활성화
+            document.querySelectorAll('#quoteTabButtonsContainer .quote-tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 모든 탭 패널 숨기기
+            document.querySelectorAll('#quoteGroupsContainer .quote-group-section').forEach(panel => {
+                panel.classList.remove('active');
+            });
+
+            const groupIndexStr = String(groupIndexToActivate);
+
+            // 특정 탭 버튼 활성화
+            const tabButton = document.querySelector(`#quoteTabButtonsContainer .quote-tab-button[data-group-index="${groupIndexStr}"]`);
+            if (tabButton) {
+                tabButton.classList.add('active');
+            }
+            // 특정 탭 패널 보이기
+            const tabPanel = document.getElementById(`quoteGroup_${groupIndexStr}`);
+            if (tabPanel) {
+                tabPanel.classList.add('active');
+                 // SortableJS가 있는 경우, 탭 활성화 시 refresh (DOM이 visible 상태가 되어야 정확한 계산 가능)
+                const daysHost = tabPanel.querySelector(`#daysContainerStatic_${groupIndexStr}`);
+                if (daysHost && typeof Sortable !== 'undefined' && daysHost.sortableInstance) {
+                    // Sortable.get(daysHost)?.option('disabled', false); // 예시. 필요시 사용
+                }
+                tabPanel.querySelectorAll('.activities-list').forEach(list => {
+                    if (list && typeof Sortable !== 'undefined' && list.sortableInstance) {
+                        // Sortable.get(list)?.option('disabled', false); // 예시. 필요시 사용
+                    }
+                });
+            }
+            activeGroupIndex = parseInt(groupIndexStr);
+        }
+
+        function updateTabTitle(groupIndex, newTitle) {
+            const tabButtonTitleSpan = document.querySelector(`#quoteTabButtonsContainer .quote-tab-button[data-group-index="${groupIndex}"] .tab-title`);
+            if (tabButtonTitleSpan) {
+                tabButtonTitleSpan.textContent = newTitle || `견적 ${parseInt(groupIndex) + 1}`;
+            }
+        }
+        
+        function handleDeleteQuoteGroup(groupIndexToDelete) {
+            const groupData = quoteGroupDataStore[groupIndexToDelete];
+            const groupTitle = groupData ? groupData.groupTitle : `견적 ${parseInt(groupIndexToDelete) + 1}`;
+            if (!window.confirm(`'${groupTitle}' 그룹을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`)) {
+                return;
+            }
+
+            // DOM에서 탭 버튼과 패널 제거
+            const tabButton = document.querySelector(`#quoteTabButtonsContainer .quote-tab-button[data-group-index="${groupIndexToDelete}"]`);
+            if (tabButton) tabButton.remove();
+            const tabPanel = document.getElementById(`quoteGroup_${groupIndexToDelete}`);
+            if (tabPanel) tabPanel.remove();
+
+            // 데이터 저장소에서 삭제
+            delete quoteGroupDataStore[groupIndexToDelete];
+
+            // 다른 탭 활성화 로직
+            if (activeGroupIndex === parseInt(groupIndexToDelete)) {
+                const remainingTabButtons = document.querySelectorAll('#quoteTabButtonsContainer .quote-tab-button');
+                if (remainingTabButtons.length > 0) {
+                    // 삭제된 탭의 인덱스를 기준으로 이전 탭 또는 첫 번째 탭 활성화 시도
+                    let newIndexToActivate = -1;
+                    let prevButton = null;
+                    remainingTabButtons.forEach(btn => {
+                        if (parseInt(btn.dataset.groupIndex) < parseInt(groupIndexToDelete)) {
+                            prevButton = btn; // 가장 가까운 이전 탭 (마지막으로 찾은 것)
+                        }
+                    });
+
+                    if (prevButton) {
+                        newIndexToActivate = parseInt(prevButton.dataset.groupIndex);
+                    } else { // 이전 탭이 없으면 첫 번째 탭 활성화
+                        newIndexToActivate = parseInt(remainingTabButtons[0].dataset.groupIndex);
+                    }
+                    activateTab(newIndexToActivate);
+                } else {
+                    // 모든 탭이 삭제된 경우: 새 그룹을 하나 만듭니다.
+                    activeGroupIndex = -1; // 활성 탭 없음
+                    const newGroupIdx = quoteGroupCounter++; // 이 counter는 고유 ID 생성용으로만 사용
+                    createQuoteGroup(newGroupIdx); // 이 함수 내부에서 activateTab 호출
+                }
+            }
+            // 만약 삭제된 탭이 현재 활성 탭이 아니었다면, 현재 활성 탭은 그대로 유지됨.
+        }
+
+
+        // `createQuoteGroup` 함수 수정
+        function createQuoteGroup(groupIndex, afterElement = null /* 사용 안함 */, sourceGroupData = null) {
             const groupId = `quoteGroup_${groupIndex}`;
             const quoteGroupDiv = document.createElement('div');
-            quoteGroupDiv.className = 'quote-group-section';
+            // 클래스명에 active는 activateTab 함수에서 관리
+            quoteGroupDiv.className = 'quote-group-section'; 
             quoteGroupDiv.id = groupId;
             quoteGroupDiv.dataset.groupIndex = groupIndex;
 
@@ -799,7 +995,7 @@
             }
 
             quoteGroupDataStore[groupIndex] = sourceGroupData || {
-                groupTitle: "",
+                groupTitle: `견적 ${parseInt(groupIndex) + 1}`, // 기본 탭 제목
                 borderColor: borderColorToApply,
                 priceSubgroups: [],
                 inclusionExclusion: { includedTextarea: '', excludedTextarea: '' },
@@ -807,6 +1003,7 @@
                 itinerarySummaryRows: [],
                 detailedItinerary: { title: "여행 일정표", days: [] }
             };
+            // ... (데이터 복원 시 상세 일정 관련 ID 재생성 및 기본값 설정 등은 기존 로직 유지)
              if (sourceGroupData && !quoteGroupDataStore[groupIndex].detailedItinerary) {
                 quoteGroupDataStore[groupIndex].detailedItinerary = { title: "여행 일정표", days: [] };
             }
@@ -826,10 +1023,11 @@
             quoteGroupDiv.innerHTML = `
                 <div class="group-action-buttons">
                     <button type="button" class="copy-quote-group-btn" title="이 견적 그룹 복사"><i class="fas fa-copy mr-1"></i>그룹 복사</button>
-                    <button type="button" class="delete-quote-group-btn" title="이 견적 그룹 삭제"><i class="fas fa-trash-alt mr-1"></i>그룹 삭제</button>
+                    <button type="button" class="delete-quote-group-btn" title="이 견적 그룹 삭제 (탭의 X와 동일)"><i class="fas fa-trash-alt mr-1"></i>그룹 삭제</button>
                 </div>
                 <input type="text" name="quote_group_title[${groupIndex}]" class="group-title-input" placeholder="견적 그룹 제목 (예: 1. 대한항공 + 신라 모노그램 다낭 슈페리어)" value="${quoteGroupDataStore[groupIndex].groupTitle}">
-
+                
+                <!-- 나머지 요금안내, 포함/불포함, 항공스케줄, 간단일정, 상세일정 섹션 HTML은 기존과 동일 -->
                 <section class="mb-8 price-section-wrapper">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold bg-custom-orange p-2 rounded" style="flex-grow: 1;">요금 안내</h3>
@@ -840,7 +1038,14 @@
                     <div id="priceSectionsContainer_${groupIndex}" class="price-sections-container-for-group"></div>
                 </section>
 
-                <section class="mb-8 inclusion-exclusion-section-wrapper">
+                <section class="mb-8 price-section-wrapper">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold bg-custom-orange p-2 rounded" style="flex-grow: 1;">요금 안내</h3>
+                        <button type="button" class="add-price-subgroup-button bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition text-xs ml-2" data-group-index="${groupIndex}">
+                            <i class="fas fa-plus mr-1"></i> 요금 소그룹 추가
+                        </button>
+                    </div>
+                    <div id="priceSectionsContainer_${groupIndex}" class="price-sections-container-for-group"></div>
                     <h3 class="text-lg font-semibold mb-4 bg-custom-orange p-2 rounded">포함/불포함 사항</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-gray-50 p-4 rounded">
@@ -852,9 +1057,6 @@
                             <textarea name="excluded_items_textarea[${groupIndex}]" rows="5" class="w-full px-3 py-2 border rounded focus:outline-none focus:border-custom-orange text-sm" placeholder="● 현지 개인 경비...">${quoteGroupDataStore[groupIndex].inclusionExclusion.excludedTextarea}</textarea>
                         </div>
                     </div>
-                </section>
-
-                <section class="mb-8 flight-schedule-section-wrapper">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold bg-custom-orange p-2 rounded" style="flex-grow: 1;">항공 스케줄</h3>
                         <button type="button" class="add-flight-subgroup-button bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition text-xs ml-2" data-group-index="${groupIndex}">
@@ -862,9 +1064,6 @@
                         </button>
                     </div>
                     <div id="flightScheduleGroupsContainer_${groupIndex}" class="flight-schedule-groups-container-for-group"></div>
-                </section>
-
-                <section class="mb-8 itinerary-summary-section-wrapper">
                     <h3 class="text-lg font-semibold mb-4 bg-custom-orange p-2 rounded">간단일정</h3>
                     <div class="overflow-x-auto">
                         <table class="min-w-full bg-white border text-sm">
@@ -877,9 +1076,6 @@
                             <tfoot><tr><td colspan="8" class="border p-2"><button type="button" class="add-itinerary-row-to-group bg-custom-green text-white px-2 py-1 rounded hover:bg-opacity-90 transition text-xs" data-group-index="${groupIndex}"><i class="fas fa-plus mr-1"></i> 행 추가</button></td></tr></tfoot>
                         </table>
                     </div>
-                </section>
-
-                <section class="mb-8 itinerary-detail-section-wrapper">
                     <div class="flex justify-between items-center mb-2 bg-custom-orange p-2 rounded-t-md">
                         <h3 class="text-lg font-semibold">상품일정 상세 (일정표)</h3>
                         <div class="itinerary-planner-styles flex items-center space-x-1">
@@ -901,17 +1097,53 @@
             `;
 
             const quoteGroupsContainer = document.getElementById('quoteGroupsContainer');
-            if (afterElement && afterElement.parentNode === quoteGroupsContainer) {
-                quoteGroupsContainer.insertBefore(quoteGroupDiv, afterElement.nextSibling);
-            } else {
-                quoteGroupsContainer.appendChild(quoteGroupDiv);
-            }
+            quoteGroupsContainer.appendChild(quoteGroupDiv);
 
+            // 탭 버튼 생성
+            const tabButton = document.createElement('button');
+            tabButton.type = 'button';
+            tabButton.className = 'quote-tab-button';
+            tabButton.dataset.groupIndex = groupIndex;
+            tabButton.style.borderTopColor = borderColorToApply; // 탭 상단에 그룹 색상 표시
+            tabButton.style.borderTopWidth = '3px';
+            tabButton.style.borderTopStyle = 'solid';
+            
+            tabButton.innerHTML = `<span class="tab-title">${quoteGroupDataStore[groupIndex].groupTitle}</span>`;
+            
+            const deleteIcon = document.createElement('i');
+            deleteIcon.className = 'fas fa-times tab-delete-icon';
+            deleteIcon.title = '이 견적 그룹 삭제';
+            deleteIcon.addEventListener('click', (e) => {
+                e.stopPropagation(); // 탭 활성화 방지
+                handleDeleteQuoteGroup(groupIndex);
+            });
+            tabButton.appendChild(deleteIcon);
+
+            tabButton.addEventListener('click', () => activateTab(groupIndex));
+
+            const quoteTabButtonsContainer = document.getElementById('quoteTabButtonsContainer');
+            const addBtn = document.getElementById('addGlobalQuoteGroupBtn'); // "새 그룹 추가" 버튼
+            quoteTabButtonsContainer.insertBefore(tabButton, addBtn); // "새 그룹 추가" 버튼 앞에 새 탭 삽입
+
+            // 그룹 제목 입력 필드와 탭 제목 동기화
+            const titleInput = quoteGroupDiv.querySelector(`input[name="quote_group_title[${groupIndex}]"]`);
+            if (titleInput) {
+                titleInput.addEventListener('input', (e) => {
+                    const newTitle = e.target.value;
+                    quoteGroupDataStore[groupIndex].groupTitle = newTitle;
+                    updateTabTitle(groupIndex, newTitle);
+                });
+            }
+            
+            // 내부 섹션들 초기화 (initPriceSectionForGroup 등)
             initPriceSectionForGroup(quoteGroupDiv, groupIndex, quoteGroupDataStore[groupIndex].priceSubgroups);
             initFlightScheduleForGroup(quoteGroupDiv, groupIndex, quoteGroupDataStore[groupIndex].flightSubgroups);
             initInclusionExclusionForGroup(quoteGroupDiv, groupIndex, quoteGroupDataStore[groupIndex]);
             initItinerarySummaryForGroup(quoteGroupDiv, groupIndex, quoteGroupDataStore[groupIndex].itinerarySummaryRows);
             renderDetailedItineraryForGroup(groupIndex);
+
+            // 새로 추가된 그룹의 탭을 활성화
+            activateTab(groupIndex);
 
             return quoteGroupDiv;
         }
@@ -1160,13 +1392,10 @@
             itineraryData.days.forEach((day, dayIdx) => {
                 let activitiesHTML = '';
                 day.activities.forEach(activity => {
-                    // 웹 화면용 고정 크기를 인라인 스타일로 지정
                     const webImageStyle = "display: block !important; width: 240px !important; height: 160px !important; object-fit: cover !important; border-radius: 4px !important; margin-top: 8px !important; margin-bottom: 8px !important; background-color: #eee !important;";
-                    
                     let imageHTML = activity.imageUrl 
                         ? `<img src="${activity.imageUrl}" alt="${activity.title || '활동 이미지'}" class="card-image" style="${webImageStyle}" onerror="this.style.display='none';">` 
                         : '';
-                    
                     activitiesHTML += `
                         <div class="readonly-activity-card">
                             <div class="card-time-icon-area">
@@ -1181,20 +1410,21 @@
                 const dayHeaderId = `day-header-readonly-trip-${groupIndex}-${dayIdx}`;
                 const isDayCollapsedInSavedView = true; 
 
-                const collapsedStateIconSVG = `<svg class="toggle-icon w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>`; 
-                const expandedStateIconSVG = `<svg class="toggle-icon w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>`; 
-                
-                const initialIconHTML = isDayCollapsedInSavedView ? collapsedStateIconSVG : expandedStateIconSVG;
+                // 아이콘 관련 변수들은 이제 필요 없으므로 주석 처리하거나 삭제해도 됩니다.
+                // const collapsedStateIconSVG = `<svg ... </svg>`; 
+                // const expandedStateIconSVG = `<svg ... </svg>`;
+                // const initialIconHTML = isDayCollapsedInSavedView ? collapsedStateIconSVG : expandedStateIconSVG;
                 
                 daysHTML += `
                     <div class="day-section bg-white shadow-sm rounded-md">
                         <div class="day-header-container" id="${dayHeaderId}" onclick="toggleDayView(this)">
-                            <div class="day-header-main"><h2 class="day-header-title">${formatDateForDisplay(day.date, dayIdx + 1)}</h2></div>
-                            <div class="day-header-controls"><span class="day-toggle-button-static p-1 rounded flex items-center justify-center">${initialIconHTML}</span></div>
+                            <div class="day-header-main"><h1 class="day-header-title">${formatDateForDisplay(day.date, dayIdx + 1)}</h1></div>
+                        
                         </div>
                         <div class="day-content-wrapper ${isDayCollapsedInSavedView ? 'hidden' : ''}">
                             <div class="activities-list pt-3">${activitiesHTML}</div>
-                             <div class="text-right p-2 mt-2"><button type="button" class="readonly-collapse-button" onclick="document.getElementById('${dayHeaderId}').click(); event.stopPropagation();">일차 접기</button></div></div></div>`;});
+                             <div class="text-right p-2 mt-2"><button type="button" class="readonly-collapse-button" onclick="document.getElementById('${dayHeaderId}').click(); event.stopPropagation();">일차 접기</button></div></div></div>`;
+            });
             return `<header class="readonly-view-header"><h1>${itineraryData.title || '여행 일정표'}</h1></header><main class="readonly-main-content saved-html-view"><div id="daysContainerReadOnly_${groupIndex}">${daysHTML}</div></main>`;
         }
         function generateReadOnlyDayViewForQuoteGroup(groupIndex, dayIndex) {
@@ -1343,15 +1573,30 @@
         // ----- 초기화 및 이벤트 리스너 -----
         document.addEventListener('DOMContentLoaded', function() {
             enableSelectOnFocus('div.container');
-            createQuoteGroup(quoteGroupCounter++);
-            populateIconDropdown();
+            populateIconDropdown(); // 아이콘 드롭다운 채우기
+
+            // 처음 로드 시 기본 그룹 1개 생성 및 활성화
+            if (Object.keys(quoteGroupDataStore).length === 0) {
+                 createQuoteGroup(quoteGroupCounter++); // 첫 번째 그룹 생성, 내부에서 activateTab(0) 호출
+            } else {
+                // 데이터가 이미 로드된 경우 (예: HTML 파일에서 복원) 첫 번째 탭 활성화
+                const firstKey = Object.keys(quoteGroupDataStore).sort((a,b) => parseInt(a) - parseInt(b))[0];
+                if (firstKey !== undefined) {
+                    activateTab(firstKey);
+                }
+            }
+            
 
             document.getElementById('addGlobalQuoteGroupBtn').addEventListener('click', function() {
-                const newGroupElement = createQuoteGroup(quoteGroupCounter++);
+                const newGroupIndex = quoteGroupCounter++; // 새 그룹을 위한 고유 ID 생성
+                const newGroupElement = createQuoteGroup(newGroupIndex);
                 if (newGroupElement) {
-                    newGroupElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // activateTab은 createQuoteGroup 내부에서 호출됨
+                    // 새로 생성된 탭의 제목 입력 필드에 포커스
                     const titleInputToFocus = newGroupElement.querySelector('input[name^="quote_group_title"]');
-                    if (titleInputToFocus) setTimeout(() => titleInputToFocus.focus(), 300);
+                    if (titleInputToFocus) {
+                         setTimeout(() => titleInputToFocus.focus(), 50); // 탭 활성화 후 포커스
+                    }
                 }
             });
 
@@ -1359,7 +1604,7 @@
                 const target = e.target;
                 const quoteGroupElement = target.closest('.quote-group-section');
                 if (!quoteGroupElement) return;
-                const groupIndex = quoteGroupElement.dataset.groupIndex;
+                const groupIndex = quoteGroupElement.dataset.groupIndex; // 현재 활성(보이는) 패널의 인덱스
 
                 if (target.closest('.add-detailed-itinerary-day-button')) handleAddDetailedItineraryDay(groupIndex);
                 else if (target.closest('.add-activity-to-day-button')) { const dayIndex = target.closest('.add-activity-to-day-button').dataset.dayIndex; openActivityModal(groupIndex, parseInt(dayIndex)); }
@@ -1379,10 +1624,13 @@
 
 
                 const priceSubgroupElement = target.closest('.price-subgroup');
-                if (target.closest('.delete-quote-group-btn')) { if (window.confirm('이 견적 그룹 전체를 삭제하시겠습니까?')) { delete quoteGroupDataStore[groupIndex]; quoteGroupElement.remove();}}
+                if (target.closest('.delete-quote-group-btn')) {
+                    handleDeleteQuoteGroup(groupIndex); // 탭 버튼의 X 아이콘과 동일한 함수 호출
+                }
                 else if (target.closest('.copy-quote-group-btn')) {
                     const sourceGroupData = JSON.parse(JSON.stringify(quoteGroupDataStore[groupIndex]));
-                    sourceGroupData.groupTitle = `${sourceGroupData.groupTitle} (복사본)`;
+                    sourceGroupData.groupTitle = `${sourceGroupData.groupTitle} (복사)`;
+                    // 상세 일정 내 activity ID 재생성
                     if (sourceGroupData.detailedItinerary && sourceGroupData.detailedItinerary.days) {
                         sourceGroupData.detailedItinerary.days.forEach(day => {
                             if (day.activities) {
@@ -1390,8 +1638,10 @@
                             }
                         });
                     }
-                    createQuoteGroup(quoteGroupCounter++, quoteGroupElement, sourceGroupData);
-                    showToast('견적 그룹이 복사되었습니다.');
+                    const newCopiedGroupIndex = quoteGroupCounter++;
+                    createQuoteGroup(newCopiedGroupIndex, null, sourceGroupData);
+                    // activateTab은 createQuoteGroup 내부에서 호출됨
+                    showToast('견적 그룹이 복사되어 새 탭으로 열렸습니다.');
                 }
                 else if (target.closest('.delete-dynamic-section-btn')) {
                     const dynamicSection = target.closest('.dynamic-section');
@@ -1430,6 +1680,7 @@
                     quoteGroupDataStore[groupIndex].itinerarySummaryRows.push(newRowData);
                     addItineraryRowForGroupUI(itineraryTbody, groupIndex, newRowData.dayNo, newRowData.dayDate, newRowData.sCity, newRowData.eCity, newRowData.hotel, newRowData.traffic, newRowData.bigo);
                 }
+                // ... (나머지 dynamic section 삭제, 행 삭제, 행 추가 등 로직은 그대로)
             });
 
              document.getElementById('quoteGroupsContainer').addEventListener('input', function(e) {
@@ -1501,6 +1752,7 @@
                 if (file) {
                     const reader = new FileReader();
                     reader.onload = function(e) {
+                        // (기존 다른 이벤트 리스너들: input, paste, 파일 로드 등은 대부분 그대로 유지)
                         try {
                             const fullHtml = e.target.result;
                             const parser = new DOMParser();
@@ -1509,7 +1761,7 @@
                             const dataScript = doc.getElementById('fullQuoteData');
                             if (dataScript && dataScript.textContent) {
                                 const data = JSON.parse(dataScript.textContent);
-                                restoreEditorFromData(data);
+                                restoreEditorFromData(data); // 이 함수를 탭 인터페이스에 맞게 수정
                             } else {
                                 console.warn("전체 견적 데이터 태그를 찾을 수 없습니다. DOM에서 수동 파싱 시도 (제한적).");
                                 manualParseAndRestore(doc);
@@ -1521,7 +1773,7 @@
                         }
                     };
                     reader.readAsText(file);
-                    this.value = null;
+                    this.value = null; 
                 }
             });
         });
@@ -1747,7 +1999,12 @@
                 const groupData = quoteGroupDataStore[groupIndex];
                 if (!groupData) return;
 
-                previewHTML += `<section class="mb-8 p-4 border rounded" style="border-color: ${groupData.borderColor || '#ccc'}; border-width: 2px;">`;
+                // *** JavaScript 수정 지점 ***
+                // 기존: previewHTML += `<section class="mb-8 p-4 border rounded" style="border-color: ${groupData.borderColor || '#ccc'}; border-width: 2px;">`;
+                // 수정 후:
+                previewHTML += `<section class="preview-group-wrapper mb-8 p-4 border rounded" style="border-color: ${groupData.borderColor || '#ccc'}; border-width: 2px;">`;
+
+
                 previewHTML += `<h3 class="preview-group-title" style="color: ${groupData.borderColor || '#333'};">${groupData.groupTitle || `견적 그룹 ${parseInt(groupIndex) + 1}`}</h3>`;
 
                 if (groupData.priceSubgroups && groupData.priceSubgroups.length > 0) {
@@ -1819,22 +2076,18 @@
              previewHTML += `
                 <script>
                     function toggleDayView(headerElement) {
-                        const contentWrapper = headerElement.nextElementSibling;
-                        const toggleButtonSpan = headerElement.querySelector('.day-toggle-button-static');
-                        
-                        if (contentWrapper && toggleButtonSpan) {
-                            const isHidden = contentWrapper.classList.toggle('hidden');
-                            // SVG 아이콘 문자열 (generateReadOnlyHTMLViewForQuoteGroup 함수와 일치시켜야 함)
-                            const collapsedIconHTML = '<svg class="toggle-icon w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>'; // 오른쪽 꺾쇠
-                            const expandedIconHTML = '<svg class="toggle-icon w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" /></svg>'; // 아래쪽 꺾쇠
-                            
-                            if (isHidden) {
-                                toggleButtonSpan.innerHTML = collapsedIconHTML;
-                            } else {
-                                toggleButtonSpan.innerHTML = expandedIconHTML;
-                            }
-                        }
-                    }
+    const contentWrapper = headerElement.nextElementSibling;
+    // const toggleButtonSpan = headerElement.querySelector('.day-toggle-button-static'); // 이 줄은 더 이상 필요 없습니다.
+    
+    if (contentWrapper) { // toggleButtonSpan 확인 조건 제거
+        contentWrapper.classList.toggle('hidden');
+        // 아이콘을 변경하는 로직 전체를 제거합니다.
+        // const isHidden = contentWrapper.classList.toggle('hidden');
+        // const collapsedIconHTML = ...
+        // const expandedIconHTML = ...
+        // if (isHidden) { ... } else { ... }
+    }
+}
                 <\/script>`;
             previewHTML += `</body></html>`;
             return previewHTML;
