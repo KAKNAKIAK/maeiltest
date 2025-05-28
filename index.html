@@ -1969,6 +1969,11 @@
             previewHTML += `
                 body.preview-mode { padding: 1rem; background-color: #f0f0f0; }
                 .preview-container { max-width: 950px; margin: 0 auto; background-color: white; padding: 1.5rem; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; }
+                /* --- 이미지 헤더 스타일 추가 --- */
+                .preview-image-header { text-align: center; margin-bottom: 1rem; }
+                .preview-image-header img { max-width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto; }
+                .preview-image-header img.new_header_style { margin-bottom: 10px; } /* 필요시 이미지 간 간격 조정 */
+                /* ------------------------------ */
                 .preview-section-title { font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; padding: 0.5rem; background-color: #e0f2f7; color: #000; border-radius: 4px; }
                 .preview-sub-group-title { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; padding: 0.25rem; background-color: #f9f9f9; border-left: 3px solid #4A90E2; }
                 .preview-table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.875rem; }
@@ -2015,7 +2020,8 @@
                     border-width: 2px !important; /* 편집기와 동일하게 유지 */
                     border-style: solid !important;
                     /* background-color: #f9f9f9 !important; /* 편집기 패널과 유사하게 */
-                    padding: 1.5rem !important; /* 편집기 패널과 유사하게 */
+                    /* padding: 1.5rem !important; */ /* 기존 일반 패딩 */
+                    padding: 0.3rem !important; /* 모바일/일반 공통 적용을 위해 수정 (모바일에서 너무 넓어지는 것 방지) */
                 }
                 .preview-mode .preview-sub-group-title {
                     border-left: none !important;
@@ -2023,6 +2029,14 @@
                 }
             </style></head><body class="preview-mode saved-html-view">`; 
             previewHTML += `<div class="preview-container">`;
+
+            // --- 이미지 헤더 삽입 ---
+            previewHTML += `<div class="preview-image-header">`;
+            previewHTML += `<img src="https://www.naeiltour.co.kr/mail/images/new_header.gif" alt="내일투어 헤더" class="new_header_style">`;
+            previewHTML += `<img src="https://www.naeiltour.co.kr/mail/reservation/images/2023_mailtop.gif" alt="예약 메일탑">`;
+            previewHTML += `</div>`;
+            // ------------------------
+
             previewHTML += `<header class="mb-6 border-b pb-4 border-gray-200"><h1 class="text-3xl font-bold text-center" style="color: #000;">내일투어 여행견적서 ${isForFileSave ? '' : '(미리보기)'}</h1></header>`;
 
             // 1. Basic Info
