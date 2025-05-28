@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -2134,13 +2135,18 @@
                         previewHTML += `</tbody></table></div>`;
                     }
 
+                    // --- 상세일정 섹션 수정 ---
                     if (groupData.detailedItinerary && groupData.detailedItinerary.days && groupData.detailedItinerary.days.length > 0) {
-                        previewHTML += `<div class="mb-6">`;
+                        previewHTML += `<div class="mb-6">`; // 이 div는 섹션 전체를 감싸는 용도.
+                        // generateReadOnlyHTMLViewForQuoteGroup 함수가 자체적으로 헤더(<header><h1>...</h1></header>)를 포함하므로
+                        // 별도의 <h4 class="preview-sub-group-title">는 여기서는 사용하지 않습니다.
                         previewHTML += generateReadOnlyHTMLViewForQuoteGroup(groupIndex);
                         previewHTML += `</div>`;
-                    } else {
-                         previewHTML += `<div class="mb-6"><h4 class="preview-sub-group-title">상품일정 상세 (일정표)</h4><p>상세 일정이 없습니다.</p></div>`;
                     }
+                    // 데이터가 없는 경우 (위 if 조건 불충족 시), 이 섹션은 아예 HTML에 추가되지 않습니다.
+                    // 기존의 else 블록 (상세 일정이 없습니다 메시지 출력 부분)이 제거되었습니다.
+                    // ------------------------
+
                     previewHTML += `</section>`; 
                 });
                 previewHTML += `</div>`; // End .preview-tab-panels-container
